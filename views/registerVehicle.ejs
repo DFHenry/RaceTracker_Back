@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register New Vehicle</title>
+</head>
+<body>
+    <h1>Register New Vehicle</h1>
+
+    <form action="/registerVehicle/submit" method="post">
+        <label for="vehicleNumber">Vehicle Number: </label>
+        <input type="number" name="vehicleNumber" id="vehicleNumber">
+        <label for="tagHex">RFID Hex Code: </label>
+        <input type="text" name="tagHex" id="tagHex">
+        <input type="hidden" name="status" id="status" value="idle">
+        <button type="submit">Add New Vehicle</button>
+    </form>
+    <p>Note: Scan a tag with the RFID to find the hex code of a new tag: It will be placed in the appropriate field automatically.</p>
+</body>
+</html>

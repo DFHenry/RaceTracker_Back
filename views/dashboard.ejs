@@ -7,5 +7,72 @@
 </head>
 <body>
     <h1>Dashboard</h1>
+
+    <h2>Vehicle Registry</h2>
+    <table>
+        <thead>
+            <th>Vehicle No.</th>
+            <th>RFID Tag</th>
+            <th>status</th>
+            <th></th>
+        </thead>
+        <tr>
+            <td>1</td>
+            <td>4a39ed</td>
+            <td>Idle</td>
+            <td><button>View Details</button></td>
+        </tr>
+    </table>
+
+    <form action="/registerVehicle" method="get">
+        <button type="submit">Add New Vehicle</button>
+    </form>
+
+    <h2>Race Management</h2>
+    <button>Start New Race</button>
+
+    <h2>Lap Records</h2>
+    <table>
+        <thead>
+            <th>Record</th>
+            <th>Lap Time</th>
+            <th>Date/Time</th>
+            <th></th>
+        </thead>
+        <tr>
+            <th>All Time</th>
+            <td>00:00:00</td>
+            <td>May 12, 12:43PM</td>
+            <td><button>View Previous records</button></td>
+        </tr>
+        <tr>
+            <th>Annual</th>
+            <td>00:00:00</td>
+            <td>May 12, 12:43PM</td>
+            <td><button>View Previous records</button></td>
+        </tr>
+        <tr>
+            <th>Month</th>
+            <td>00:00:00</td>
+            <td>May 12, 12:43PM</td>
+            <td><button>View Previous records</button></td>
+        </tr>
+        <tr>
+            <th>Week</th>
+            <td>00:00:00</td>
+            <td>May 12, 12:43PM</td>
+            <td><button>View Previous records</button></td>
+        </tr>
+        <tr>
+            <th>Today</th>
+            <td>00:00:00</td>
+            <td>May 12, 12:43PM</td>
+            <td><button>View Previous records</button></td>
+        </tr>
+    </table>
+
+    <form action="/login/logout" method="get">
+        <button type="submit">Logout</button>
+    </form>
 </body>
 </html>
