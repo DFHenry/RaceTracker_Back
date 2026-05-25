@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Vehicle No. <%= vehicle.vehicleNumber %></title>
+</head>
+<body>
+    <h1>View Vehicle No. <%= vehicle.vehicleNumber %></h1>
+    <table>
+        <thead>
+            <th>RFID Tag</th>
+            <th>Status</th>
+            <th></th>
+        </thead>
+        <tr>
+            <td><%= vehicle.tagHex %></td>
+            <td><%= vehicle.status %></td>
+        </tr>
+    </table>
+
+    <h2>Maintenance Logs</h2>
+    <table>
+        <thead>
+            <th>Date Started</th>
+            <th>Description of Work</th>
+            <th>Date Finished/Updated</th>
+            <th>Work Done By</th>
+        </thead>
+        <!-- for each maintenance log -->
+        <tr>
+            <td>May 12, 1985</td>
+            <td>Rotated Tires</td>
+            <td>May 12, 1985</td>
+            <td>David</td>
+        </tr>
+    </table>
+
+    <h3>Add New Log</h3>
+
+    <form action="/viewVehicle/maintenance/submit">
+        <label for="vehicleNumber">
+        <input type="text" name="vehicleNumber">
+        
+    </form>
+</body>
+</html>

@@ -89,6 +89,14 @@ async function addVehicle(newVehicle)
     let result = await Vehicle.insertOne(vehicleToAdd);
 }
 
+//view a specific vehicle in the registry
+async function getOneVehicle(id)
+{
+    const viewId = { _id: new ObjectId(String(id)) }; 
+    const result = Vehicle.findOne(viewId); 
+    return result;
+}
+
 //method exports
 export default
 {
@@ -96,5 +104,6 @@ export default
     getUsers,
     addUser,
     getAllVehicles,
-    addVehicle
+    addVehicle,
+    getOneVehicle
 }

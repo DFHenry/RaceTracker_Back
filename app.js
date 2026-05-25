@@ -141,6 +141,13 @@ app.get("/dashboard", async (req, res) =>
     });
 });
 
+app.get("/viewVehicle", async (req, res) => 
+{
+    const vehicleToView = await vehicleDb.getOneVehicle(req.query.vehicleId);
+
+    res.render("viewVehicle", {vehicle: vehicleToView})
+});
+
 //load vehicle registry
 app.get("/registerVehicle", (req, res) =>
 {

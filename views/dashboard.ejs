@@ -21,7 +21,13 @@
             <td><%= vehicle.vehicleNumber %></td>
             <td><%= vehicle.tagHex %></td>
             <td><%= vehicle.status %></td>
-            <td><button>View Details</button></td>
+            <td>
+                <form action="/viewVehicle" method="get">
+                    <input type="hidden" name="vehicleId" value="<%= vehicle._id %>">
+                    <button type="submit">View Details</button>
+                </form>
+
+            </td>
         </tr>
         <% }); %>
     </table>
