@@ -16,12 +16,14 @@
             <th>status</th>
             <th></th>
         </thead>
+        <% vehicles.forEach(function(vehicle) { %>
         <tr>
-            <td>1</td>
-            <td>4a39ed</td>
-            <td>Idle</td>
+            <td><%= vehicle.vehicleNumber %></td>
+            <td><%= vehicle.tagHex %></td>
+            <td><%= vehicle.status %></td>
             <td><button>View Details</button></td>
         </tr>
+        <% }); %>
     </table>
 
     <form action="/registerVehicle" method="get">

@@ -5,16 +5,29 @@ import { scryptSync } from "crypto";
 import path from "path";
 import {MongoClient, ObjectId} from "mongodb";
 import mongoose from "mongoose";
+import { SerialPort } from "serialport";
+import http from "http";
+import {Server} from 'socket.io';
+
+var rfid1 = new SerialPort(
+{
+    path: "COM5",
+    baudRate: 9600
+});
+
+var fullMessage = "";
 
 //import mongodb collections
 import userDb from "./db.js";
-import vehcileDB from "./db.js";
+import vehicleDb from "./db.js";
 
 //express setup
 const app = express();
 const port = process.env.PORT || "8888";
 
 const __dirname = import.meta.dirname;
+
+const io = new Server(port);
 
 //ejs setup
 app.set("views", path.join(__dirname, "views"));
@@ -26,6 +39,32 @@ app.use(express.urlencoded({extended:true}));
 
 //use JSON data
 app.use(express.json());
+
+io.on = ("connection", function(data)
+{
+    console.log("node is listening");
+});
+
+
+//rfid Reader code
+rfid1.on("data", async function(data)
+{
+    if(data != "" && data != null && data != undefined)
+    {
+        fullMessage += data;
+        await delay(50);
+
+        let sendMessage = fullMessage.trim();
+
+        if(sendMessage != "")
+        {
+            console.log(sendMessage);
+            io.emit("data", sendMessage);
+        }
+        fullMessage = "";
+        sendMessage = "";
+    }
+});
 
 //  +++ API INFO +++
 
@@ -64,7 +103,6 @@ app.post("/login/submit", async (req, res) =>
     {
         req.session.loggedIn = true;
         req.session.user = req.body.username;
-        console.log("Login Successful");
         res.redirect("/dashboard");
     }
     else
@@ -95,12 +133,12 @@ app.post("/login/newUser", async (req, res) =>
 //load dashboard after logging in
 app.get("/dashboard", async (req, res) => 
 {
-    res.render("dashboard");
-});
+    const vehicles = await vehicleDb.getAllVehicles();
 
-app.listen(port, () => 
-{
-    console.log(`Listening on http://localhost:${port}`);
+    res.render("dashboard", 
+    {
+        vehicles: vehicles
+    });
 });
 
 //load vehicle registry
@@ -122,4 +160,17 @@ app.post("/registerVehicle/submit", async (req, res) =>
     await vehcileDB.addVehicle(newVehicle)
 
     res.redirect("/dashboard");
+});
+
+function delay(milliseconds)
+{
+    return new Promise(resolve =>
+    {
+        setTimeout(resolve, milliseconds);
+    });
+}
+
+app.listen(port, () => 
+{
+    console.log(`Listening on http://localhost:${port}`);
 });
