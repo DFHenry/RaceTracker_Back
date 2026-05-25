@@ -7,7 +7,7 @@ import {MongoClient, ObjectId} from "mongodb";
 import mongoose from "mongoose";
 import { SerialPort } from "serialport";
 import http from "http";
-import {Server} from 'socket.io';
+import {Server as SocketIOServer} from 'socket.io';
 
 var rfid1 = new SerialPort(
 {
@@ -16,6 +16,7 @@ var rfid1 = new SerialPort(
 });
 
 var fullMessage = "";
+var newRFID = "";
 
 //import mongodb collections
 import userDb from "./db.js";
@@ -23,11 +24,12 @@ import vehicleDb from "./db.js";
 
 //express setup
 const app = express();
+const server = http.createServer(app);
+const io = new SocketIOServer(server);
+
 const port = process.env.PORT || "8888";
 
 const __dirname = import.meta.dirname;
-
-const io = new Server(port);
 
 //ejs setup
 app.set("views", path.join(__dirname, "views"));
@@ -42,9 +44,8 @@ app.use(express.json());
 
 io.on = ("connection", function(data)
 {
-    console.log("node is listening");
+    console.log("client connected");
 });
-
 
 //rfid Reader code
 rfid1.on("data", async function(data)
@@ -58,11 +59,10 @@ rfid1.on("data", async function(data)
 
         if(sendMessage != "")
         {
-            console.log(sendMessage);
-            io.emit("data", sendMessage);
+            newRFID = sendMessage;
+            fullMessage = "";
+            sendMessage = "";
         }
-        fullMessage = "";
-        sendMessage = "";
     }
 });
 
@@ -144,7 +144,13 @@ app.get("/dashboard", async (req, res) =>
 //load vehicle registry
 app.get("/registerVehicle", (req, res) =>
 {
-    res.render("registerVehicle");
+    const hexCode = newRFID;
+
+    res.render("registerVehicle" ,
+        {
+            newHex: hexCode
+        }
+    );
 });
 
 //add vehicle to registry
@@ -153,11 +159,11 @@ app.post("/registerVehicle/submit", async (req, res) =>
     let newVehicle = 
     {
         vehicleNumber: req.body.vehicleNumber,
-        tagHex: req.body.tagHex,
+        tagHex: newRFID,
         status: req.body.status
     };
 
-    await vehcileDB.addVehicle(newVehicle)
+    await vehicleDb.addVehicle(newVehicle)
 
     res.redirect("/dashboard");
 });
@@ -169,6 +175,11 @@ function delay(milliseconds)
         setTimeout(resolve, milliseconds);
     });
 }
+
+server.listen(port, () =>
+{
+    console.log("socket port is listening");
+})
 
 app.listen(port, () => 
 {

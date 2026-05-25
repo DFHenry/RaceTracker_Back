@@ -13,19 +13,15 @@
         <label for="vehicleNumber">Vehicle Number: </label>
         <input type="number" name="vehicleNumber" id="vehicleNumber">
         <label for="tagHex">RFID Hex Code: </label>
-        <input type="text" name="tagHex" id="tagHex">
+        <input type="text" name="tagHex" id="tagHex" value="<%= newHex %>" placeholder="<%= newHex %>">
         <input type="hidden" name="status" id="status" value="idle">
         <button type="submit">Add New Vehicle</button>
     </form>
     <p>Note: Scan a tag with the RFID to find the hex code of a new tag: It will be placed in the appropriate field automatically.</p>
 
-    <!-- <script>
+    <script>
         var socket = io();
-
-        socket.on("data", function(data)
-        {
-            
-        })
-    </script> -->
+        
+    </script>
 </body>
 </html>
