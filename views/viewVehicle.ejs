@@ -28,20 +28,34 @@
             <th>Work Done By</th>
         </thead>
         <!-- for each maintenance log -->
+        <% logs.forEach(function(log){ %>
         <tr>
-            <td>May 12, 1985</td>
-            <td>Rotated Tires</td>
-            <td>May 12, 1985</td>
-            <td>David</td>
+            <td><%= log.dateStarted %></td>
+            <td><%= log.description %></td>
+            <td><%= log.dateFinished %></td>
+            <td><%= log.repairedBy %></td>
         </tr>
+        <% }); %>
     </table>
 
     <h3>Add New Log</h3>
 
-    <form action="/viewVehicle/maintenance/submit">
-        <label for="vehicleNumber">
-        <input type="text" name="vehicleNumber">
-        
+    <form action="/viewVehicle/maintenance/submit" method="post">
+        <input type="hidden" name="vehicleId" value="<%= vehicle._id %>">
+        <input type="hidden" name="vehicleNumber" value="<%= vehicle.vehicleNumber %>">
+        <label for="dateStarted">Date Started: </label>
+        <input type="date" name="dateStarted">
+        <label for="dateFinished">Date Finished: </label>
+        <input type="date" name="dateFinished">
+        <br>
+        <label for="description">Description</label>
+        <input type="textarea" name="description">
+        <br>
+        <label for="repairedBy">Repaired By: </label>
+        <input type="text" name="repairedBy">
+        <label for="status">Vehicle Status: </label>
+        <input type="text" name="status">
+        <button type="submit">Add Log</button>
     </form>
 </body>
 </html>

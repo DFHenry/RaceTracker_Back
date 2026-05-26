@@ -10,6 +10,7 @@ const dbUrl = `mongodb+srv://${process.env.DBUSER}:${process.env.DBPWD}@${proces
 //get users from collection
 const userDb = new MongoClient(dbUrl).db("users");
 const vehicleDb = new MongoClient(dbUrl).db("vehicles");
+const maintenanceDb = new MongoClient(dbUrl).db("maintenanceLogs");
 
 //user schema
 const UserSchema = new mongoose.Schema(
@@ -33,6 +34,20 @@ const VechicleSchema = new mongoose.Schema(
 
 //vehicle object
 const Vehicle = mongoose.model("Vehicle", VechicleSchema);
+
+//maintenance log schema
+const MaintenanceSchema = new mongoose.Schema(
+{
+    vehicleNumber: Number,
+    description: String,
+    dateStarted: Date,
+    dateFinished: Date,
+    repairedBy: String,
+    status: String
+});
+
+//maintenance log model
+const MaintenanceLog = mongoose.model("MaintenanceLog", MaintenanceSchema);
 
 //connect to the db
 await mongoose.connect(dbUrl);
@@ -94,7 +109,54 @@ async function getOneVehicle(id)
 {
     const viewId = { _id: new ObjectId(String(id)) }; 
     const result = Vehicle.findOne(viewId); 
-    return result;
+    return result;    
+}
+
+async function editVehicle(filter, vehicleDoc)
+{
+    let vehicleToEdit = 
+    {
+        vehicleNumber: vehicleDoc.vehicleNumber,
+        tagHex: vehicleDoc.tagHex,
+        status: vehicleDoc.status
+    }
+
+    const result = await MaintenanceLog.updateOne(filter, vehicleToEdit)
+}
+
+//get all relevant vehicle logs
+async function getAllLogs(id)
+{
+    return await MaintenanceLog.find({id});
+}
+
+//add a maintenance log
+async function addMaintenanceLog(newLog)
+{
+    let logToAdd = new MaintenanceLog(
+    {
+        vehicleNumber: newLog.vehicleNumber,
+        description: newLog.description,
+        dateStarted: newLog.dateStarted,
+        dateFinished: newLog.dateFinished,
+        repairedBy: newLog.repairedBy
+    });
+
+    let result1 = await MaintenanceLog.insertOne(logToAdd);
+
+    // let vehicleToChange = Vehicle.findOne(newLog.vehicleId);
+
+    // let updateVehicle =
+    // {
+    //     $set:
+    //     {
+    //         vehicleNumber: vehicleToChange.vehicleNumber,
+    //         tagHex: vehicleToChange.tagHex,
+    //         status: logToAdd.status
+    //     },
+    // };
+
+    // const result2 = await Vehicle.updateOne(vehicleToChange, updateVehicle);
 }
 
 //method exports
@@ -105,5 +167,8 @@ export default
     addUser,
     getAllVehicles,
     addVehicle,
-    getOneVehicle
+    getOneVehicle,
+    getAllLogs,
+    addMaintenanceLog,
+    editVehicle
 }

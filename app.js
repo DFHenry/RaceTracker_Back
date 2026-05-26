@@ -21,6 +21,7 @@ var newRFID = "";
 //import mongodb collections
 import userDb from "./db.js";
 import vehicleDb from "./db.js";
+import maintenanceDb from "./db.js";
 
 //express setup
 const app = express();
@@ -144,8 +145,35 @@ app.get("/dashboard", async (req, res) =>
 app.get("/viewVehicle", async (req, res) => 
 {
     const vehicleToView = await vehicleDb.getOneVehicle(req.query.vehicleId);
+    const maintenanceLogView = await maintenanceDb.getAllLogs(req.query.vehicleNumber);
 
-    res.render("viewVehicle", {vehicle: vehicleToView})
+    res.render("viewVehicle", {vehicle: vehicleToView, logs: maintenanceLogView});
+});
+
+app.post("/viewVehicle/maintenance/submit", async (req, res) =>
+{
+    let newLog =
+    {
+        vehicleId: req.body.vehicleId,
+        vehicleNumber: req.body.vehicleNumber,
+        description: req.body.description,
+        dateStarted: req.body.dateStarted,
+        dateFinished: req.body.dateFinished,
+        repairedBy: req.body.repairedBy,
+        status: req.body.status
+    };
+
+    await maintenanceDb.addMaintenanceLog(newLog);
+
+    let idFilter = {_id: new ObjectId(String(req.body.vehicleId)) }
+
+    let vehicleToEdit = await vehicleDb.getOneVehicle(req.body.vehicleId); 
+
+    vehicleToEdit.status = req.body.status;
+
+    await vehicleDb.editVehicle(idFilter, vehicleToEdit);
+
+    res.redirect("/viewVehicle");
 });
 
 //load vehicle registry
@@ -153,7 +181,7 @@ app.get("/registerVehicle", (req, res) =>
 {
     const hexCode = newRFID;
 
-    res.render("registerVehicle" ,
+    res.render("registerVehicle",
         {
             newHex: hexCode
         }
