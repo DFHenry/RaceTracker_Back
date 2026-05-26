@@ -10,7 +10,7 @@ const dbUrl = `mongodb+srv://${process.env.DBUSER}:${process.env.DBPWD}@${proces
 //get users from collection
 const userDb = new MongoClient(dbUrl).db("users");
 const vehicleDb = new MongoClient(dbUrl).db("vehicles");
-const maintenanceDb = new MongoClient(dbUrl).db("maintenanceLogs");
+const maintenanceDb = new MongoClient(dbUrl).db("maintenancelogs");
 
 //user schema
 const UserSchema = new mongoose.Schema(
@@ -108,7 +108,7 @@ async function addVehicle(newVehicle)
 async function getOneVehicle(id)
 {
     const viewId = { _id: new ObjectId(String(id)) }; 
-    const result = Vehicle.findOne(viewId); 
+    const result = Vehicle.findOne(viewId);
     return result;    
 }
 
@@ -121,13 +121,25 @@ async function editVehicle(filter, vehicleDoc)
         status: vehicleDoc.status
     }
 
-    const result = await MaintenanceLog.updateOne(filter, vehicleToEdit)
+    await Vehicle.updateOne(filter, vehicleToEdit)
+    // return result;
 }
 
 //get all relevant vehicle logs
-async function getAllLogs(id)
+async function getAllLogs(vehicleNo)
 {
-    return await MaintenanceLog.find({id});
+    let logs = await MaintenanceLog.find({});
+
+    var relevantLogs = [];
+
+    for(let i = 0; i < logs.length; i++)
+    {
+        if(logs[i].vehicleNumber == vehicleNo)
+        {
+            relevantLogs.push(logs[i]);
+        }
+    }
+    return relevantLogs;
 }
 
 //add a maintenance log
@@ -142,21 +154,7 @@ async function addMaintenanceLog(newLog)
         repairedBy: newLog.repairedBy
     });
 
-    let result1 = await MaintenanceLog.insertOne(logToAdd);
-
-    // let vehicleToChange = Vehicle.findOne(newLog.vehicleId);
-
-    // let updateVehicle =
-    // {
-    //     $set:
-    //     {
-    //         vehicleNumber: vehicleToChange.vehicleNumber,
-    //         tagHex: vehicleToChange.tagHex,
-    //         status: logToAdd.status
-    //     },
-    // };
-
-    // const result2 = await Vehicle.updateOne(vehicleToChange, updateVehicle);
+    let result = await MaintenanceLog.insertOne(logToAdd);
 }
 
 //method exports

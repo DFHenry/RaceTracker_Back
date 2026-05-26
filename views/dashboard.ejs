@@ -24,6 +24,7 @@
             <td>
                 <form action="/viewVehicle" method="get">
                     <input type="hidden" name="vehicleId" value="<%= vehicle._id %>">
+                    <input type="hidden" name="vehicleNumber" value="<%= vehicle.vehicleNumber %>">
                     <button type="submit">View Details</button>
                 </form>
 

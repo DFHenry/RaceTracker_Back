@@ -142,14 +142,33 @@ app.get("/dashboard", async (req, res) =>
     });
 });
 
+//view details of one vehicle
 app.get("/viewVehicle", async (req, res) => 
 {
-    const vehicleToView = await vehicleDb.getOneVehicle(req.query.vehicleId);
-    const maintenanceLogView = await maintenanceDb.getAllLogs(req.query.vehicleNumber);
+    let vehicleToView = await vehicleDb.getOneVehicle(req.query.vehicleId);
+    let maintenanceLogView = await maintenanceDb.getAllLogs(req.query.vehicleNumber);
 
     res.render("viewVehicle", {vehicle: vehicleToView, logs: maintenanceLogView});
 });
 
+//update details of selected vehilce
+app.post("/viewVehicle/updateVehicle/Submit", async (req, res) =>
+{
+    let filterId = {_id: new ObjectId(String(req.body.vehicleId)) };
+
+    let vehicleToUpdate =
+    {
+        vehicleNumber: req.body.vehicleNumber,
+        tagHex: req.body.tagHex,
+        status: req.body.status
+    }
+
+    await vehicleDb.editVehicle(filterId, vehicleToUpdate);
+
+    res.redirect("/dashboard");
+});
+
+//add maintenance log and update vehicle status
 app.post("/viewVehicle/maintenance/submit", async (req, res) =>
 {
     let newLog =
@@ -162,10 +181,10 @@ app.post("/viewVehicle/maintenance/submit", async (req, res) =>
         repairedBy: req.body.repairedBy,
         status: req.body.status
     };
-
+    
     await maintenanceDb.addMaintenanceLog(newLog);
 
-    let idFilter = {_id: new ObjectId(String(req.body.vehicleId)) }
+    let idFilter = {_id: new ObjectId(String(req.body.vehicleId)) };
 
     let vehicleToEdit = await vehicleDb.getOneVehicle(req.body.vehicleId); 
 
@@ -173,7 +192,7 @@ app.post("/viewVehicle/maintenance/submit", async (req, res) =>
 
     await vehicleDb.editVehicle(idFilter, vehicleToEdit);
 
-    res.redirect("/viewVehicle");
+    res.redirect("/dashboard");
 });
 
 //load vehicle registry
