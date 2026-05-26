@@ -112,6 +112,7 @@ async function getOneVehicle(id)
     return result;    
 }
 
+//edit vehicle's data
 async function editVehicle(filter, vehicleDoc)
 {
     let vehicleToEdit = 
@@ -123,6 +124,13 @@ async function editVehicle(filter, vehicleDoc)
 
     await Vehicle.updateOne(filter, vehicleToEdit)
     // return result;
+}
+
+async function deleteVehicle(id)
+{
+    let vehicleToRemove = {_id: new ObjectId(String(id)) };
+
+    await Vehicle.deleteOne(vehicleToRemove);
 }
 
 //get all relevant vehicle logs
@@ -157,6 +165,11 @@ async function addMaintenanceLog(newLog)
     let result = await MaintenanceLog.insertOne(logToAdd);
 }
 
+async function deleteLogs(vehicleNo) 
+{
+    
+}
+
 //method exports
 export default
 {
@@ -168,5 +181,7 @@ export default
     getOneVehicle,
     getAllLogs,
     addMaintenanceLog,
-    editVehicle
+    deleteLogs,
+    editVehicle,
+    deleteVehicle
 }

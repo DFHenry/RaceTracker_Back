@@ -30,6 +30,11 @@
         <input type="text" name="status" id="status" value="<%= vehicle.status %>">
         <button type="submit">Update Vehicle</button>
     </form>
+    <form action="/viewVehicle/deleteVehicle/submit">
+        <input type="hidden" name="vehicleId" value="<%= vehicle._id %>">
+        <input type="hidden" name="vehiceNumber" value="<%= vehicle.vehicleNumber %>">
+        <button type="submit">Delete Vehicle</button>
+    </form>
 
     <h2>Maintenance Logs</h2>
     <table>

@@ -142,6 +142,8 @@ app.get("/dashboard", async (req, res) =>
     });
 });
 
+//  +++ VEHICLE CRUD FUNCITONS +++
+
 //view details of one vehicle
 app.get("/viewVehicle", async (req, res) => 
 {
@@ -193,6 +195,14 @@ app.post("/viewVehicle/maintenance/submit", async (req, res) =>
     await vehicleDb.editVehicle(idFilter, vehicleToEdit);
 
     res.redirect("/dashboard");
+});
+
+//delete vehicle from DB
+app.post("/viewVehicle/deleteVehicle/Submit", async (req, res) =>
+{
+    await vehicleDb.deleteVehicle(req.body.vehicleId);
+
+    await maintenanceDb.deleteLogs(req.body.vehicleNumber);
 });
 
 //load vehicle registry
