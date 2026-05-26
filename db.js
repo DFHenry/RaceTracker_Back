@@ -11,6 +11,7 @@ const dbUrl = `mongodb+srv://${process.env.DBUSER}:${process.env.DBPWD}@${proces
 const userDb = new MongoClient(dbUrl).db("users");
 const vehicleDb = new MongoClient(dbUrl).db("vehicles");
 const maintenanceDb = new MongoClient(dbUrl).db("maintenancelogs");
+const raceDb = new MongoClient(dbUrl).db("raceInfo");
 
 //user schema
 const UserSchema = new mongoose.Schema(
@@ -48,6 +49,28 @@ const MaintenanceSchema = new mongoose.Schema(
 
 //maintenance log model
 const MaintenanceLog = mongoose.model("MaintenanceLog", MaintenanceSchema);
+
+//racer schema
+const RacerSchema = new mongoose.Schema(
+{
+    racerName: String,
+    racerEmail: String,
+    vehicleNumber: Number
+});
+
+//racer model
+const Racer = mongoose.model("Racer", RacerSchema);
+
+//race management schema
+const RaceSchema = new mongoose.Schema(
+{
+    state: String,
+    racers: [RacerSchema],
+    noOfLaps: Number
+});
+
+//race model
+const Race = mongoose.model("Race", RaceSchema);
 
 //connect to the db
 await mongoose.connect(dbUrl);
@@ -167,7 +190,17 @@ async function addMaintenanceLog(newLog)
 
 async function deleteLogs(vehicleNo) 
 {
-    
+    let logs = await MaintenanceLog.find({});
+
+    for(let i = 0; i < logs.length; i++)
+    {
+        if(logs[i].vehicleNumber == vehicleNo)
+        {
+            let logToRemove = {_id: new ObjectId(String(logs[i]._id)) };
+
+            await MaintenanceLog.deleteOne(logToRemove);
+        }
+    }
 }
 
 //method exports
@@ -183,5 +216,6 @@ export default
     addMaintenanceLog,
     deleteLogs,
     editVehicle,
-    deleteVehicle
+    deleteVehicle,
+    deleteLogs
 }

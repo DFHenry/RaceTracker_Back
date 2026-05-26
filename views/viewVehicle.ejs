@@ -6,7 +6,7 @@
     <title>View Vehicle No. <%= vehicle.vehicleNumber %></title>
 </head>
 <body>
-    <h1>View Vehicle No. <%= vehicle.vehicleNumber %> <%= vehicle._id %></h1>
+    <h1>View Vehicle No. <%= vehicle.vehicleNumber %></h1>
     <table>
         <thead>
             <th>RFID Tag</th>
@@ -30,9 +30,9 @@
         <input type="text" name="status" id="status" value="<%= vehicle.status %>">
         <button type="submit">Update Vehicle</button>
     </form>
-    <form action="/viewVehicle/deleteVehicle/submit">
+    <form action="/viewVehicle/deleteVehicle/submit" method="post">
         <input type="hidden" name="vehicleId" value="<%= vehicle._id %>">
-        <input type="hidden" name="vehiceNumber" value="<%= vehicle.vehicleNumber %>">
+        <input type="hidden" name="vehicleNumber" value="<%= vehicle.vehicleNumber %>">
         <button type="submit">Delete Vehicle</button>
     </form>
 
@@ -73,6 +73,10 @@
         <label for="status">Vehicle Status: </label>
         <input type="text" name="status">
         <button type="submit">Add Log</button>
+    </form>
+
+    <form action="/dashboard">
+        <button type="submit">Return to Dashboard</button>
     </form>
 </body>
 </html>

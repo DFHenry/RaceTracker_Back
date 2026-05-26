@@ -22,6 +22,7 @@ var newRFID = "";
 import userDb from "./db.js";
 import vehicleDb from "./db.js";
 import maintenanceDb from "./db.js";
+import raceDb from "./db.js";
 
 //express setup
 const app = express();
@@ -142,6 +143,11 @@ app.get("/dashboard", async (req, res) =>
     });
 });
 
+app.get("/raceManagement", (req, res) =>
+{
+    res.render("race");
+});
+
 //  +++ VEHICLE CRUD FUNCITONS +++
 
 //view details of one vehicle
@@ -198,11 +204,13 @@ app.post("/viewVehicle/maintenance/submit", async (req, res) =>
 });
 
 //delete vehicle from DB
-app.post("/viewVehicle/deleteVehicle/Submit", async (req, res) =>
+app.post("/viewVehicle/deleteVehicle/submit", async (req, res) =>
 {
     await vehicleDb.deleteVehicle(req.body.vehicleId);
 
     await maintenanceDb.deleteLogs(req.body.vehicleNumber);
+
+    res.redirect("/dashboard");
 });
 
 //load vehicle registry
@@ -231,6 +239,14 @@ app.post("/registerVehicle/submit", async (req, res) =>
 
     res.redirect("/dashboard");
 });
+
+//  +++ RACE MANAGEMENT FUNCTIONS +++
+
+//add racer
+// app.post("/raceManagement/addRacer/submit")
+// {
+    
+// }
 
 function delay(milliseconds)
 {
