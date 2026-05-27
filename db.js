@@ -58,6 +58,8 @@ const RacerSchema = new mongoose.Schema(
     vehicleNumber: Number
 });
 
+//  +++ RACE DATA +++
+
 //racer model
 const Racer = mongoose.model("Racer", RacerSchema);
 
@@ -71,6 +73,8 @@ const RaceSchema = new mongoose.Schema(
 
 //race model
 const Race = mongoose.model("Race", RaceSchema);
+
+//  +++ DB CONNECTION +++
 
 //connect to the db
 await mongoose.connect(dbUrl);
@@ -107,7 +111,7 @@ async function addUser(newUser)
     let status = await User.insertOne(userToAdd);
 }
 
-// +++ VEHICLE REGISTRY METHODS
+// +++ VEHICLE REGISTRY METHODS +++
 
 //get all vehicles
 async function getAllVehicles()
@@ -199,6 +203,32 @@ async function deleteLogs(vehicleNo)
             let logToRemove = {_id: new ObjectId(String(logs[i]._id)) };
 
             await MaintenanceLog.deleteOne(logToRemove);
+        }
+    }
+}
+
+//  +++ RACE METHODS +++
+
+//add racer to a new race
+async function addRacer(racerInfo) 
+{
+    //make a new Racer object
+    let racerToAdd = new Racer(
+    {
+        racerName: racerInfo.racerName,
+        racerEmail: racerInfo.racerEmail,
+        vehicleNumber: 0
+    });
+
+    //get all vehicles
+    vehicleList = await getAllVehicles();
+
+    for(let i = 0; 0 < vehicleList.length; i++)
+    {
+        if(vehicleList[i].status == "idle")
+        {
+            racerToAdd.vehicleNumber = vehicleList[i].vehicleNumber;
+            break;
         }
     }
 }

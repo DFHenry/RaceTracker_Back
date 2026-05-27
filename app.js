@@ -8,6 +8,7 @@ import mongoose from "mongoose";
 import { SerialPort } from "serialport";
 import http from "http";
 import {Server as SocketIOServer} from 'socket.io';
+import { WebSocketServer } from "ws";
 
 var rfid1 = new SerialPort(
 {
@@ -24,10 +25,20 @@ import vehicleDb from "./db.js";
 import maintenanceDb from "./db.js";
 import raceDb from "./db.js";
 
-//express setup
+//server setup
 const app = express();
 const server = http.createServer(app);
+const wss = new WebSocketServer({server});
+
+//socket.io (may need to remove)
 const io = new SocketIOServer(server);
+
+//websocket connection
+wss.on("connection", (ws) =>
+{
+    console.log("client connected");
+
+});
 
 const port = process.env.PORT || "8888";
 
@@ -62,8 +73,10 @@ rfid1.on("data", async function(data)
         if(sendMessage != "")
         {
             newRFID = sendMessage;
+            console.log(sendMessage);
             fullMessage = "";
             sendMessage = "";
+
         }
     }
 });
@@ -258,10 +271,10 @@ function delay(milliseconds)
 
 server.listen(port, () =>
 {
-    console.log("socket port is listening");
+    console.log("port is listening on: " + port);
 })
 
-app.listen(port, () => 
-{
-    console.log(`Listening on http://localhost:${port}`);
-});
+// app.listen(port, () => 
+// {
+//     console.log(`Listening on http://localhost:${port}`);
+// });

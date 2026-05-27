@@ -6,8 +6,44 @@
     <title>Document</title>
 </head>
 <body>
+    <script>
+        window.onload = RaceInfo;
+
+        function RaceInfo()
+        {
+            const dbUrl = "mongodb+srv://testdbuser:JspZD0Ebtn0Lotvj@class-database.9y0z7gg.mongodb.net/race_tracker";
+            let tableBody = document.getElementById("testDiv");
+
+            raceInfo = setInterval(GetRaceInfo, 1000);
+            
+            async function GetRaceInfo()
+            {
+                
+            }
+        }
+        
+    </script>
     <div id="NewRace">
+
         <h1>New Race</h1>
+
+        <table>
+            <thead>
+                <th>Racer Name</th>
+                <th>Email</th>
+                <th>Vehicle No.</th>
+            </thead>
+            <tbody>
+            <!-- data to update -->
+            <div id="testDiv">
+                <tr>
+                    <td>David</td>
+                    <td>david@mail.com</td>
+                    <td>1</td>
+                </tr>
+            </div>
+            </tbody>
+        </table>
 
         <h2>Add Racer</h2>
         <form action="">
