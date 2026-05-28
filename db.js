@@ -50,6 +50,8 @@ const MaintenanceSchema = new mongoose.Schema(
 //maintenance log model
 const MaintenanceLog = mongoose.model("MaintenanceLog", MaintenanceSchema);
 
+//  +++ RACE DATA +++
+
 //racer schema
 const RacerSchema = new mongoose.Schema(
 {
@@ -58,15 +60,13 @@ const RacerSchema = new mongoose.Schema(
     vehicleNumber: Number
 });
 
-//  +++ RACE DATA +++
-
 //racer model
 const Racer = mongoose.model("Racer", RacerSchema);
 
 //race management schema
 const RaceSchema = new mongoose.Schema(
 {
-    state: String,
+    raceState: String,
     racers: [RacerSchema],
     noOfLaps: Number
 });
@@ -149,7 +149,7 @@ async function editVehicle(filter, vehicleDoc)
         status: vehicleDoc.status
     }
 
-    await Vehicle.updateOne(filter, vehicleToEdit)
+    await Vehicle.updateOne(filter, vehicleToEdit);
     // return result;
 }
 
@@ -209,6 +209,28 @@ async function deleteLogs(vehicleNo)
 
 //  +++ RACE METHODS +++
 
+//initialize the race data if no data for a race exists
+async function initializeRaceData()
+{
+    console.log("Initializing base race data");
+    let initRace =
+    {
+        state: "standby",
+        racers: [],
+        noOfLaps: 1
+    }
+
+    await Race.insertOne(initRace);
+}
+
+//get current race data
+async function getRaceData()
+{
+    return await Race.find({});
+    
+    
+}
+
 //add racer to a new race
 async function addRacer(racerInfo) 
 {
@@ -227,10 +249,27 @@ async function addRacer(racerInfo)
     {
         if(vehicleList[i].status == "idle")
         {
+            racerToAdd.status = "active";
+            console.log("vehicle activated");
             racerToAdd.vehicleNumber = vehicleList[i].vehicleNumber;
             break;
         }
     }
+}
+
+//add race data to start a new race
+async function startRace(data)
+{
+    const raceToAdd = new Race()
+    {
+        raceState = "Starting",
+        racers = data.racerArray,
+        noOfLaps = data.noOfLaps
+    }
+
+    let race = await Race.findOne({});
+
+    await Race.updateOne(race._id, raceToAdd);
 }
 
 //method exports
@@ -247,5 +286,9 @@ export default
     deleteLogs,
     editVehicle,
     deleteVehicle,
-    deleteLogs
+    deleteLogs,
+    initializeRaceData,
+    getRaceData,
+    addRacer,
+    startRace
 }

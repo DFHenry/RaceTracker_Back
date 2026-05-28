@@ -6,6 +6,10 @@
     <title>Document</title>
 </head>
 <body>
+    <div id="standby">
+
+    </div>
+
     <div id="NewRace">
 
         <h1>New Race</h1>
@@ -31,22 +35,44 @@
         </div>
 
         <h2>Race Config</h2>
-        <div>
+        <form action="/raceManagement/startRace/submit" method="post">
+            <input type="hidden" name="raceState" id="raceState">
+            <input type="hidden" name="racerArray" id="racers" value="">
             <label for="laps">Number of Laps: </label>
             <input type="number" name="noOfLaps" value="1" placeholder="1">
             <button type="submit">Start Race</button>
         </div>
     </div>
+
+    <div id="beginRace">
+
+    </div>
+
+    <div id="curRace">
+
+    </div>
+
+    <div id="raceFinished">
+
+    </div>
+
+    <!-- return to dashboard route -->
     <form action="/dashboard">
         <button type="submit">Return to Dashboard</button>
     </form>
 
     <script>
+        let raceState = "";
+
         const tableBody = document.getElementById("testDiv");
 
         const entries = document.getElementById('entries');
         const racerName = document.getElementById('racerName');
         const racerEmail = document.getElementById('email');
+
+        const racers = document.getElementById('racers');
+
+        let racerArray = [];
 
         const racer = 
         {
@@ -74,8 +100,6 @@
 
             const newRacer = Object.create(racer);
 
-            //console.log(newRacer.rName + " " + newRacer.rEmail);
-
             if(!newName || !newEmail)
             {
                 console.log("Missing Data");
@@ -85,6 +109,10 @@
                 ws.send(newName + "," + newEmail);
                 racerName.value = '';
                 racerEmail.value = '';
+
+                racerAray.push(newRacer);
+
+                racers.value = racerArray;
             }
             //return false;
         }

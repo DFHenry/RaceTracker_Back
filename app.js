@@ -9,7 +9,7 @@ import { SerialPort } from "serialport";
 import http from "http";
 import { createServer } from "http";
 import { WebSocketServer } from "ws";
-import { setTimeout } from "node:timers/promises";
+// import { setTimeout } from "node:timers/promises";
 
 //RFID Reader !!! May need to change path based on which port/OS you're using
 var rfid1 = new SerialPort(
@@ -32,6 +32,7 @@ let Racer =
 
 let Race =
 {
+    raceState: String,
     racers: [Racer],
     noOfLaps: Number
 };
@@ -69,7 +70,7 @@ wss.on("connection", (ws, req) =>
             
             var vehicles = await vehicleDb.getAllVehicles();
 
-            await setTimeout(1000);
+            //await setTimeout(1000);
 
             //if newrace is empty, make it a Race
             if(newRace == undefined || newRace == null)
@@ -97,7 +98,7 @@ wss.on("connection", (ws, req) =>
             racerToAdd.rVehicle = assignedVehicle;
 
             newRace.racers.push(racerToAdd);
-            
+
             ws.send("<td>" + racerToAdd.rName + "</td><td>" + racerArray[1] + "</td><td>" + racerToAdd.rVehicle + "</td>");
         }
     });
@@ -127,7 +128,7 @@ rfid1.on("data", async function(data)
     if(data != "" && data != null && data != undefined)
     {
         fullMessage += data;
-        await delay(50);
+        await delay(500);
 
         let sendMessage = fullMessage.trim();
 
@@ -209,6 +210,13 @@ app.post("/login/newUser", async (req, res) =>
 app.get("/dashboard", async (req, res) => 
 {
     const vehicles = await vehicleDb.getAllVehicles();
+
+    let race = await raceDb.getRaceData();
+
+    if(!race.length)
+    {
+        await raceDb.initializeRaceData();
+    }
 
     res.render("dashboard", 
     {
@@ -308,18 +316,25 @@ app.post("/registerVehicle/submit", async (req, res) =>
         status: req.body.status
     };
 
-    await vehicleDb.addVehicle(newVehicle)
+    await vehicleDb.addVehicle(newVehicle);
 
     res.redirect("/dashboard");
 });
 
 //  +++ RACE MANAGEMENT FUNCTIONS +++
 
-//add racer
-// app.post("/raceManagement/addRacer/submit")
-// {
-    
-// }
+//start new race
+app.post("/raceManagement/startRace/submit", async (req, res) =>
+{
+    let newRace = 
+    {
+        raceState: req.body.raceState,
+        racers: req.body.racers,
+        noOfLaps: req.body.noOfLaps
+    }
+
+    await raceDb.startRace(newRace);
+});
 
 function delay(milliseconds)
 {
