@@ -7,37 +7,103 @@ import {MongoClient, ObjectId} from "mongodb";
 import mongoose from "mongoose";
 import { SerialPort } from "serialport";
 import http from "http";
-import {Server as SocketIOServer} from 'socket.io';
+import { createServer } from "http";
 import { WebSocketServer } from "ws";
+import { setTimeout } from "node:timers/promises";
 
+//RFID Reader !!! May need to change path based on which port/OS you're using
 var rfid1 = new SerialPort(
 {
     path: "COM5",
     baudRate: 9600
 });
 
+//global variables for RFID reader
 var fullMessage = "";
 var newRFID = "";
+
+//global variables for race creation
+let Racer =
+{
+    rName: String,
+    rEmail: String,
+    rVehicle: Number
+};
+
+let Race =
+{
+    racers: [Racer],
+    noOfLaps: Number
+};
+
+let newRace;
 
 //import mongodb collections
 import userDb from "./db.js";
 import vehicleDb from "./db.js";
 import maintenanceDb from "./db.js";
 import raceDb from "./db.js";
+import { settings } from "node:cluster";
 
 //server setup
 const app = express();
-const server = http.createServer(app);
+const server = createServer(app);
 const wss = new WebSocketServer({server});
 
-//socket.io (may need to remove)
-const io = new SocketIOServer(server);
-
-//websocket connection
-wss.on("connection", (ws) =>
+//websocket connection and methods
+wss.on("connection", (ws, req) =>
 {
     console.log("client connected");
 
+    //server receives message from AddRacer function from the RaceManagement page
+    ws.on("message", (newRacer) =>
+    {
+        startRace();
+
+        async function startRace()
+        {
+            //store info into a string, then split into an array
+            let temp = `${newRacer}`;
+            let racerArray = temp.split(",");
+            let assignedVehicle = 0;
+            
+            var vehicles = await vehicleDb.getAllVehicles();
+
+            await setTimeout(1000);
+
+            //if newrace is empty, make it a Race
+            if(newRace == undefined || newRace == null)
+            {
+                newRace = Object.create(Race);
+            }
+
+            //loop through all vehicles
+            for(let i = 0; 0 < vehicles.length; i++)
+            {
+                // console.log("ping: " + vehicles[i].vehicleNumber);
+
+                if(vehicles[i].status == 'idle')
+                {
+                    assignedVehicle = vehicles[i].vehicleNumber;
+                    console.log("Assigned Vehicle Number: " + assignedVehicle);
+                    break;
+                }
+            }
+
+            let racerToAdd = Object.create(Racer)
+
+            racerToAdd.rName = racerArray[0];
+            racerToAdd.rEmail = racerArray[1];
+            racerToAdd.rVehicle = assignedVehicle;
+
+            newRace.racers.push(racerToAdd);
+            
+            ws.send("<td>" + racerToAdd.rName + "</td><td>" + racerArray[1] + "</td><td>" + racerToAdd.rVehicle + "</td>");
+        }
+    });
+
+    //when a client disconnects from the server
+    ws.on("close", () => console.log("client disconnected"));
 });
 
 const port = process.env.PORT || "8888";
@@ -55,11 +121,6 @@ app.use(express.urlencoded({extended:true}));
 //use JSON data
 app.use(express.json());
 
-io.on = ("connection", function(data)
-{
-    console.log("client connected");
-});
-
 //rfid Reader code
 rfid1.on("data", async function(data)
 {
@@ -76,7 +137,6 @@ rfid1.on("data", async function(data)
             console.log(sendMessage);
             fullMessage = "";
             sendMessage = "";
-
         }
     }
 });

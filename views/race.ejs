@@ -6,23 +6,6 @@
     <title>Document</title>
 </head>
 <body>
-    <script>
-        window.onload = RaceInfo;
-
-        function RaceInfo()
-        {
-            const dbUrl = "mongodb+srv://testdbuser:JspZD0Ebtn0Lotvj@class-database.9y0z7gg.mongodb.net/race_tracker";
-            let tableBody = document.getElementById("testDiv");
-
-            raceInfo = setInterval(GetRaceInfo, 1000);
-            
-            async function GetRaceInfo()
-            {
-                
-            }
-        }
-        
-    </script>
     <div id="NewRace">
 
         <h1>New Race</h1>
@@ -33,36 +16,78 @@
                 <th>Email</th>
                 <th>Vehicle No.</th>
             </thead>
-            <tbody>
-            <!-- data to update -->
-            <div id="testDiv">
-                <tr>
-                    <td>David</td>
-                    <td>david@mail.com</td>
-                    <td>1</td>
-                </tr>
-            </div>
+            <tbody id="entries">
+
             </tbody>
         </table>
 
         <h2>Add Racer</h2>
-        <form action="">
+        <div>
             <label for="racerName">Racer Name: </label>
-            <input type="text" name="racerName">
-            <label for="email">Racer Email:</label>
-            <input type="text" name="email">
-            <button type="submit">Add Racer</button>
-        </form>
+            <input type="text" name="racerName" id="racerName">
+            <label for="racerEmail">Racer Email:</label>
+            <input type="text" name="email" id="email">
+            <button onclick="addRacer()">Add Racer</button>
+        </div>
 
         <h2>Race Config</h2>
-        <form action="">
+        <div>
             <label for="laps">Number of Laps: </label>
             <input type="number" name="noOfLaps" value="1" placeholder="1">
             <button type="submit">Start Race</button>
-        </form>
+        </div>
     </div>
     <form action="/dashboard">
         <button type="submit">Return to Dashboard</button>
     </form>
+
+    <script>
+        const tableBody = document.getElementById("testDiv");
+
+        const entries = document.getElementById('entries');
+        const racerName = document.getElementById('racerName');
+        const racerEmail = document.getElementById('email');
+
+        const racer = 
+        {
+            rName: String,
+            rEmail: String
+        }
+
+        const ws = new WebSocket('ws://localhost:8888');
+
+        ws.onopen = () =>
+        {
+            console.log('connected to server');
+        }
+
+        ws.onmessage = (event) =>
+        {
+            //console.log(event.data);
+            entries.innerHTML += event.data;
+        }
+
+        function addRacer()
+        {
+            const newName = racerName.value.trim();
+            const newEmail = racerEmail.value.trim();
+
+            const newRacer = Object.create(racer);
+
+            //console.log(newRacer.rName + " " + newRacer.rEmail);
+
+            if(!newName || !newEmail)
+            {
+                console.log("Missing Data");
+            }
+            else
+            {
+                ws.send(newName + "," + newEmail);
+                racerName.value = '';
+                racerEmail.value = '';
+            }
+            //return false;
+        }
+    </script>
 </body>
 </html>
