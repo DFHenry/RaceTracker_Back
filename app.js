@@ -37,8 +37,6 @@ let Race =
     noOfLaps: Number
 };
 
-let newRace;
-
 //import mongodb collections
 import userDb from "./db.js";
 import vehicleDb from "./db.js";
@@ -67,37 +65,36 @@ wss.on("connection", (ws, req) =>
             let temp = `${newRacer}`;
             let racerArray = temp.split(",");
             let assignedVehicle = 0;
-            
-            var vehicles = await vehicleDb.getAllVehicles();
 
-            //await setTimeout(1000);
+            let vehicles = await vehicleDb.getAllVehicles();
 
-            //if newrace is empty, make it a Race
-            if(newRace == undefined || newRace == null)
-            {
-                newRace = Object.create(Race);
-            }
+            let newRace = await raceDb.getRaceData();
+
+            console.log("newRace is: " + newRace);
 
             //loop through all vehicles
             for(let i = 0; 0 < vehicles.length; i++)
             {
-                // console.log("ping: " + vehicles[i].vehicleNumber);
-
                 if(vehicles[i].status == 'idle')
                 {
                     assignedVehicle = vehicles[i].vehicleNumber;
                     console.log("Assigned Vehicle Number: " + assignedVehicle);
+                    await delay(250);
                     break;
                 }
             }
 
-            let racerToAdd = Object.create(Racer)
+            let racerToAdd = Object.create(Racer);
 
             racerToAdd.rName = racerArray[0];
             racerToAdd.rEmail = racerArray[1];
             racerToAdd.rVehicle = assignedVehicle;
 
-            newRace.racers.push(racerToAdd);
+            newRace.racers.push({racerName: racerToAdd.rName, racerEmail: racerToAdd.rEmail, vehicleNumber: racerToAdd.rVehicle});
+
+            let idFilter = {_id: new ObjectId(String(newRace._id)) };
+
+            await raceDb.addRacer(idFilter, newRace);
 
             ws.send("<td>" + racerToAdd.rName + "</td><td>" + racerArray[1] + "</td><td>" + racerToAdd.rVehicle + "</td>");
         }
@@ -213,7 +210,7 @@ app.get("/dashboard", async (req, res) =>
 
     let race = await raceDb.getRaceData();
 
-    if(!race.length)
+    if(race == null || race == undefined)
     {
         await raceDb.initializeRaceData();
     }

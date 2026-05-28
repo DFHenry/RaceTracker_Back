@@ -27,6 +27,7 @@
 
         <h2>Add Racer</h2>
         <div>
+            <input type="hidden" name="raceId" id="raceId" value="">
             <label for="racerName">Racer Name: </label>
             <input type="text" name="racerName" id="racerName">
             <label for="racerEmail">Racer Email:</label>
@@ -35,13 +36,13 @@
         </div>
 
         <h2>Race Config</h2>
-        <form action="/raceManagement/startRace/submit" method="post">
-            <input type="hidden" name="raceState" id="raceState">
+        <form action="/raceManagement/startRace/submit" method="post" id="startRaceForm">
+            <input type="hidden" name="raceState" id="raceState" value="starting">
             <input type="hidden" name="racerArray" id="racers" value="">
             <label for="laps">Number of Laps: </label>
             <input type="number" name="noOfLaps" value="1" placeholder="1">
             <button type="submit">Start Race</button>
-        </div>
+        </form>
     </div>
 
     <div id="beginRace">
@@ -57,12 +58,13 @@
     </div>
 
     <!-- return to dashboard route -->
-    <form action="/dashboard">
+    <form action="/dashboard" id="returnForm">
         <button type="submit">Return to Dashboard</button>
     </form>
 
     <script>
-        let raceState = "";
+        
+        //let raceState = "";
 
         const tableBody = document.getElementById("testDiv");
 

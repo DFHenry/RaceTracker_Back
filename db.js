@@ -215,7 +215,7 @@ async function initializeRaceData()
     console.log("Initializing base race data");
     let initRace =
     {
-        state: "standby",
+        raceState: "standby",
         racers: [],
         noOfLaps: 1
     }
@@ -226,48 +226,72 @@ async function initializeRaceData()
 //get current race data
 async function getRaceData()
 {
-    return await Race.find({});
-    
-    
+    return await Race.findOne({});
 }
 
 //add racer to a new race
-async function addRacer(racerInfo) 
+async function addRacer(idFilter, raceInfo) 
 {
-    //make a new Racer object
-    let racerToAdd = new Racer(
-    {
-        racerName: racerInfo.racerName,
-        racerEmail: racerInfo.racerEmail,
-        vehicleNumber: 0
-    });
+    console.log("adding racer");
 
     //get all vehicles
-    vehicleList = await getAllVehicles();
+    let vehicleList = await getAllVehicles();
 
     for(let i = 0; 0 < vehicleList.length; i++)
     {
         if(vehicleList[i].status == "idle")
         {
-            racerToAdd.status = "active";
-            console.log("vehicle activated");
-            racerToAdd.vehicleNumber = vehicleList[i].vehicleNumber;
+            console.log("available vehicle found");
+            raceInfo.vehicleNumber = vehicleList[i].vehicleNumber;
+                
+            let vehicleFilter = {_id: new ObjectId(String(vehicleList[i]._id)) };
+
+            console.log(vehicleFilter);
+
+            let updateVehicle = 
+            {
+                $set:
+                {
+                    vehicleNumber: vehicleList[i].vehicleNumber,
+                    tagHex: vehicleList[i].tagHex,
+                    status: "active"
+                },
+            };
+            await Vehicle.updateOne(vehicleFilter, vehicleList[i]);
             break;
         }
     }
+
+    let raceUpdate =
+    {
+        $set:
+        {
+            raceState: "registration",
+            racers: raceInfo.racers,
+            noOfLaps: raceInfo.noOfLaps
+        },
+    };
+
+    console.log(raceInfo);
+
+    await Race.updateOne(idFilter, raceUpdate);
 }
 
 //add race data to start a new race
 async function startRace(data)
 {
+    console.log(data);
+
     const raceToAdd = new Race()
     {
-        raceState = "Starting",
-        racers = data.racerArray,
-        noOfLaps = data.noOfLaps
+        raceToAdd.raceState = data.raceState,
+        raceToAdd.racers = data.racerArray,
+        raceToAdd.noOfLaps = data.noOfLaps
     }
 
     let race = await Race.findOne({});
+
+    console.log(race._id);
 
     await Race.updateOne(race._id, raceToAdd);
 }
