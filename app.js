@@ -79,7 +79,7 @@ wss.on("connection", (ws, req) =>
                 {
                     assignedVehicle = vehicles[i].vehicleNumber;
                     console.log("Assigned Vehicle Number: " + assignedVehicle);
-                    await delay(250);
+                    // await delay(250);
                     break;
                 }
             }

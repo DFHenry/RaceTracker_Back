@@ -239,10 +239,11 @@ async function addRacer(idFilter, raceInfo)
 
     for(let i = 0; 0 < vehicleList.length; i++)
     {
+        console.log(vehicleList[i].status);
         if(vehicleList[i].status == "idle")
         {
-            console.log("available vehicle found");
-            raceInfo.vehicleNumber = vehicleList[i].vehicleNumber;
+            console.log("available vehicle found: " + vehicleList[i]._id);
+            //raceInfo.vehicleNumber = vehicleList[i].vehicleNumber;
                 
             let vehicleFilter = {_id: new ObjectId(String(vehicleList[i]._id)) };
 
@@ -257,7 +258,8 @@ async function addRacer(idFilter, raceInfo)
                     status: "active"
                 },
             };
-            await Vehicle.updateOne(vehicleFilter, vehicleList[i]);
+            await Vehicle.updateOne(vehicleFilter, updateVehicle);
+            console.log("vehicle Status Updated");
             break;
         }
     }
