@@ -6,10 +6,6 @@
     <title>Document</title>
 </head>
 <body>
-    <div id="standby">
-
-    </div>
-
     <div id="NewRace">
 
         <h1>New Race</h1>
@@ -36,25 +32,11 @@
         </div>
 
         <h2>Race Config</h2>
-        <form action="/raceManagement/startRace/submit" method="post" id="startRaceForm">
-            <input type="hidden" name="raceState" id="raceState" value="starting">
-            <input type="hidden" name="racerArray" id="racers" value="">
+        <form action="/raceRegistration/startRace/submit" method="post" id="startRaceForm">
             <label for="laps">Number of Laps: </label>
-            <input type="number" name="noOfLaps" value="1" placeholder="1">
+            <input type="number" name="noOfLaps" placeholder="1">
             <button type="submit">Start Race</button>
         </form>
-    </div>
-
-    <div id="beginRace">
-
-    </div>
-
-    <div id="curRace">
-
-    </div>
-
-    <div id="raceFinished">
-
     </div>
 
     <!-- return to dashboard route -->

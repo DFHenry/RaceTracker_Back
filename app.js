@@ -221,9 +221,9 @@ app.get("/dashboard", async (req, res) =>
     });
 });
 
-app.get("/raceManagement", (req, res) =>
+app.get("/raceRegistration", (req, res) =>
 {
-    res.render("race");
+    res.render("raceReg");
 });
 
 //  +++ VEHICLE CRUD FUNCITONS +++
@@ -321,16 +321,31 @@ app.post("/registerVehicle/submit", async (req, res) =>
 //  +++ RACE MANAGEMENT FUNCTIONS +++
 
 //start new race
-app.post("/raceManagement/startRace/submit", async (req, res) =>
+app.post("/raceRegistration/startRace/submit", async (req, res) =>
 {
-    let newRace = 
+    let curRace = await raceDb.getRaceData();
+
+    let idFilter = {_id: new ObjectId(String(curRace._id)) };
+
+    let newRace =
     {
-        raceState: req.body.raceState,
-        racers: req.body.racers,
-        noOfLaps: req.body.noOfLaps
+        raceState: curRace.raceState,
+        racers: curRace.racers,
+        noOfLaps: parseInt(req.body.noOfLaps)
     }
 
-    await raceDb.startRace(newRace);
+    console.log("new race: " + newRace);
+
+    await raceDb.startRace(idFilter, newRace);
+
+    const finalRace = await raceDb.getRaceData();
+
+    console.log("final race: " + finalRace);
+
+    res.render("raceView", 
+    {
+        race: finalRace
+    });
 });
 
 function delay(milliseconds)

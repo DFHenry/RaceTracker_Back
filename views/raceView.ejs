@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>Start Race</h1>
+
+    <div id="raceInfo">
+        <p>Number of Laps: <%= race.noOfLaps %></p>
+        <p>Race is <%= race.raceState %></p>
+    </div>
+
+    <table>
+        <thead>
+            <th>Racers</th>
+            <th>Vehicle Number</th>
+            <th>Actions</th>
+        </thead>
+
+        <tbody>
+            <% race.racers.forEach(function(racer) { %>
+            <tr>
+                <td><%= racer.racerName %></td>
+                <td><%= racer.vehicleNumber %></td>
+                <td><button>Remove Racer</button></td>
+            </tr>
+            <% }); %>
+        </tbody>
+    </table>
+
+    <form action="/stopRace">
+        <button>Stop Race</button>
+    </form>
+</body>
+</html>

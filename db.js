@@ -239,7 +239,7 @@ async function addRacer(idFilter, raceInfo)
 
     for(let i = 0; 0 < vehicleList.length; i++)
     {
-        console.log(vehicleList[i].status);
+        //console.log(vehicleList[i].status);
         if(vehicleList[i].status == "idle")
         {
             console.log("available vehicle found: " + vehicleList[i]._id);
@@ -247,7 +247,7 @@ async function addRacer(idFilter, raceInfo)
                 
             let vehicleFilter = {_id: new ObjectId(String(vehicleList[i]._id)) };
 
-            console.log(vehicleFilter);
+            //console.log(vehicleFilter);
 
             let updateVehicle = 
             {
@@ -259,7 +259,7 @@ async function addRacer(idFilter, raceInfo)
                 },
             };
             await Vehicle.updateOne(vehicleFilter, updateVehicle);
-            console.log("vehicle Status Updated");
+            //console.log("vehicle Status Updated");
             break;
         }
     }
@@ -274,28 +274,25 @@ async function addRacer(idFilter, raceInfo)
         },
     };
 
-    console.log(raceInfo);
-
     await Race.updateOne(idFilter, raceUpdate);
 }
 
 //add race data to start a new race
-async function startRace(data)
+async function startRace(filter, data)
 {
     console.log(data);
 
-    const raceToAdd = new Race()
+    let finalRace =
     {
-        raceToAdd.raceState = data.raceState,
-        raceToAdd.racers = data.racerArray,
-        raceToAdd.noOfLaps = data.noOfLaps
-    }
+        $set:
+        {
+            status: data.raceStatus,
+            racers: data.racers,
+            noOfLaps: data.noOfLaps
+        },
+    };
 
-    let race = await Race.findOne({});
-
-    console.log(race._id);
-
-    await Race.updateOne(race._id, raceToAdd);
+    await Race.updateOne(filter, finalRace);
 }
 
 //method exports
