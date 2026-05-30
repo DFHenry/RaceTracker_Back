@@ -27,11 +27,11 @@
         </thead>
         <tbody id="raceLaps">
             <tr>
-                <td>Name</td>
-                <td>1</td>
-                <td>00:00:00</td>
-                <td>Lap 1/3</td>
-                <td>1st</td>
+                <!-- <td>Name</td>
+                <td>Vehicle Number</td>
+                <td>Time Index</td>
+                <td>Lap Number</td>
+                <td>Pole Position</td> -->
             </tr>
         </tbody>
 
@@ -66,11 +66,17 @@
         <button>Stop Race</button>
     </form>
 
+    <!-- <p id="hiddenObject" style="display: none;"><%= race %></p> -->
+
     <script>
         //html elements
         let stopWatch = document.getElementById("stopWatch");
         let raceLaps = document.getElementById("raceLaps");
         let startBtn = document.getElementById("startBtn");
+
+        var test = <%- JSON.stringify(race) %>;
+
+        console.log(test);
 
         //timer variables
         let minutes = 0;
@@ -86,6 +92,7 @@
         let timerOn = false;
 
         //active RFID Tags
+
         var activeTags = [];
 
         //websocket variables and functions
@@ -104,6 +111,7 @@
 
             let dataArray = temp.split(",");
 
+            //initization loop: gets all active vehicle's rfid hex codes and places them into an array
             if(dataArray[0] === "activeTags")
             {
                 for(let i = 0; i < dataArray.length; i++)
@@ -125,6 +133,10 @@
                 {
                     if(activeTags[x] === dataArray[1])
                     {
+                        
+
+                        //display information
+                        raceLaps.innerHTML +=  "<tr><td>Name</td><td>1</td><td>" + dataArray[2] + ":" + dataArray[3] + ":" + dataArray[4] + "</td><td>Lap 1/3</td><td>1st</td></tr>";
                         console.log("Lap Made By Tag " + dataArray[1] + " at time index " + dataArray[2] + ":" + dataArray[3] + ":" + dataArray[4]);
                     }
                 }
@@ -203,7 +215,7 @@
 
             if(timerOn == true)
             {
-                ws.send("checkRFID" + "," + minutes.toString() + "," + seconds.toString() + "," + count.toString());
+                ws.send("checkRFID" + "," + minDisp + "," + secDisp + "," + dSecDisp);
             }
 
             setTimeout(raceTimer, 10);
@@ -211,4 +223,5 @@
 
     </script>
 </body>
+
 </html>
