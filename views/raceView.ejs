@@ -13,7 +13,7 @@
         <p>Number of Laps: <%= race.noOfLaps %></p>
         <p>Race is <%= race.raceState %></p>
         <p id="countdown"></p>
-        <p id="raceTimer">00:00:00</p>
+        <p id="stopWatch">00:00:00</p>
     </div>
 
     <h2>Laps</h2>
@@ -42,6 +42,7 @@
         <thead>
             <th>Racers</th>
             <th>Vehicle Number</th>
+            <th>Vehicle Hex Code</th>
             <th>Actions</th>
         </thead>
 
@@ -50,30 +51,162 @@
             <tr>
                 <td><%= racer.racerName %></td>
                 <td><%= racer.vehicleNumber %></td>
+                <td><%= racer.vehicleRFID %></td>
                 <td><button>Remove Racer</button></td>
             </tr>
             <% }); %>
         </tbody>
     </table>
 
+    <div>
+        <button id="startBtn">Start Race</button>
+    </div>
+
     <form action="/stopRace">
         <button>Stop Race</button>
     </form>
 
     <script>
-        const raceTimer = document.getElementById("raceTimer");
-        const raceLaps = document.getElementById("raceLaps");
+        //html elements
+        let stopWatch = document.getElementById("stopWatch");
+        let raceLaps = document.getElementById("raceLaps");
+        let startBtn = document.getElementById("startBtn");
 
+        //timer variables
+        let minutes = 0;
+        let seconds = 0;
+        let count = 0;
+
+        //stopwatch display variables
+        let dSecDisp = "";
+        let secDisp = "";
+        let minDisp = "";
+
+        //timer boolean
+        let timerOn = false;
+
+        //active RFID Tags
+        var activeTags = [];
+
+        //websocket variables and functions
         const ws = new WebSocket('ws:localhost:8888');
 
         ws.onopen = () =>
         {
             console.log('connected to server: Race View');
+            ws.send("initializeRace,0");
         }
 
         ws.onmessage = (event) =>
         {
-            console.log(event);
+            let temp = event.data;
+            temp = temp.slice(0, -1);
+
+            let dataArray = temp.split(",");
+
+            if(dataArray[0] === "activeTags")
+            {
+                for(let i = 0; i < dataArray.length; i++)
+                {
+                    if(i === 0)
+                    {
+                    //ignore the first entry
+                    }
+                    else
+                    {
+                        activeTags.push(dataArray[i])
+                    }
+                }
+            }
+
+            else if(dataArray[0] === "detectedRFID")
+            {
+                for(let x = 0; x < activeTags.length; x++)
+                {
+                    if(activeTags[x] === dataArray[1])
+                    {
+                        console.log("Lap Made By Tag " + dataArray[1] + " at time index " + dataArray[2] + ":" + dataArray[3] + ":" + dataArray[4]);
+                    }
+                }
+            }
+        }
+
+        startBtn.onclick = startRace;
+
+        //timer functions
+        function startRace()
+        {
+            if(timerOn === false)
+            {
+                console.log("timer is on");
+                startBtn.innerHTML = "Pause Race";
+                timerOn = true;
+            }
+            else
+            {
+                console.log("timer is off");
+                startBtn.innerHTML = "Resume Race";
+                timerOn = false;
+            }
+
+            raceTimer();
+        }
+
+        function raceTimer()
+        {
+            //actual counter
+            if(timerOn == true)
+            {
+                count++;
+            }
+
+            if(count == 100)
+            {
+                seconds += 1;
+                count = 0;
+            }
+            if(seconds == 60)
+            {
+                minutes += 1;
+                seconds = 0;
+            }
+
+            //counter display
+            if(count < 10)
+            {
+                dSecDisp = "0" + count.toString();
+            }
+            else
+            {
+                dSecDisp = count.toString();
+            }
+
+            if(seconds < 10)
+            {
+                secDisp = "0" + seconds.toString();
+            }
+            else
+            {
+                secDisp = seconds.toString();
+            }
+
+            if(minutes < 10)
+            {
+                minDisp = "0" + minutes.toString();
+            }
+            else
+            {
+                minDisp = minutes.toString();
+            }
+
+            stopWatch.innerHTML = minDisp + ":" + secDisp + ":" + dSecDisp;
+
+            if(timerOn == true)
+            {
+                ws.send("checkRFID" + "," + minutes.toString() + "," + seconds.toString() + "," + count.toString());
+            }
+
+            setTimeout(raceTimer, 10);
         }
 
     </script>

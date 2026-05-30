@@ -57,7 +57,8 @@ const RacerSchema = new mongoose.Schema(
 {
     racerName: String,
     racerEmail: String,
-    vehicleNumber: Number
+    vehicleNumber: Number,
+    vehicleRFID: String
 });
 
 //racer model

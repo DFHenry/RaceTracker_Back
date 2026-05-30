@@ -31,7 +31,8 @@ let Racer =
 {
     rName: String,
     rEmail: String,
-    rVehicle: Number
+    rVehicle: Number,
+    vehicleRFID: String
 };
 
 let Race =
@@ -59,24 +60,41 @@ wss.on("connection", (ws, req) =>
 {
     console.log("client connected"); 
 
-    //server receives message from AddRacer function from the RaceManagement page
+    //server receives message from a page
     ws.on("message", (data) =>
     {
+        //parse data into an array of strings
         let temp = `${data}`;
         let dataArray = temp.split(",");
 
+        //based on dataArray[0], perform an async function
+
+        //call addRacer function if the dataArray[0] string is "registration"
         if(dataArray[0] == "registration")
         {
-            curPage = dataArray[0];
+            //let curPage = dataArray[0];
             addRacer(dataArray);
         }
 
+        else if(dataArray[0] == "initializeRace")
+        {
+            initializeNewRace();
+        }
+
+        //call checkRFID function if the dataArray[0] string is "checkRFID";
+        else if(dataArray[0] == "checkRFID")
+        {
+            checkRFID(dataArray);
+        }
+
+        //add a racer to the race information on the db and send it back to the page via websocket message
         async function addRacer(newRacer)
         {
             //store info into a string, then split into an array
             // let temp = `${newRacer}`;
             // let racerArray = temp.split(",");
             let assignedVehicle = 0;
+            let assignedRFID = "";
 
             let vehicles = await vehicleDb.getAllVehicles();
 
@@ -90,7 +108,8 @@ wss.on("connection", (ws, req) =>
                 if(vehicles[i].status == 'idle')
                 {
                     assignedVehicle = vehicles[i].vehicleNumber;
-                    console.log("Assigned Vehicle Number: " + assignedVehicle);
+                    assignedRFID = vehicles[i].tagHex;
+                    //console.log("Assigned Vehicle Hex: " + assignedRFID);
                     break;
                 }
             }
@@ -100,15 +119,54 @@ wss.on("connection", (ws, req) =>
             racerToAdd.rName = newRacer[1];
             racerToAdd.rEmail = newRacer[2];
             racerToAdd.rVehicle = assignedVehicle;
+            racerToAdd.vehicleRFID = assignedRFID;
 
-            newRace.racers.push({racerName: racerToAdd.rName, racerEmail: racerToAdd.rEmail, vehicleNumber: racerToAdd.rVehicle});
+            newRace.racers.push({racerName: racerToAdd.rName, racerEmail: racerToAdd.rEmail, vehicleNumber: racerToAdd.rVehicle, vehicleRFID: racerToAdd.vehicleRFID});
 
             let idFilter = {_id: new ObjectId(String(newRace._id)) };
 
             await raceDb.addRacer(idFilter, newRace);
 
-            ws.send("<td>" + racerToAdd.rName + "</td><td>" + racerToAdd.rEmail + "</td><td>" + racerToAdd.rVehicle + "</td>");
+            ws.send("<td>" + racerToAdd.rName + "</td><td>" + racerToAdd.rEmail + "</td><td>" + racerToAdd.rVehicle + "</td><td>" + racerToAdd.vehicleRFID + "</td>");
         }
+
+        async function initializeNewRace()
+        {
+            let initRace = await vehicleDb.getAllVehicles();
+            var activeTags = "activeTags,";
+
+            for(let i = 0; i < initRace.length; i++)
+            {
+                if(initRace[i].status === "active")
+                {
+                    activeTags += initRace[i].tagHex + ",";
+                }
+            }
+            newRFID = "";
+            ws.send(activeTags);
+
+        }
+
+        async function checkRFID(checkData)
+        {
+            if(newRFID == "")
+            {
+                // console.log("no tag detected");
+            }
+            else
+            {
+                console.log("tag detected: " + newRFID);
+
+                let minutesLog = checkData[1];
+                let secondsLog = checkData[2];
+                let dSecondsLog = checkData[3];
+
+                ws.send("detectedRFID," + newRFID + "," + minutesLog + "," + secondsLog + "," + dSecondsLog + ",");
+
+                newRFID = "";
+            }
+        }
+
     });
 
     //when a client disconnects from the server
