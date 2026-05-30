@@ -45,9 +45,6 @@
     </form>
 
     <script>
-        
-        //let raceState = "";
-
         const tableBody = document.getElementById("testDiv");
 
         const entries = document.getElementById('entries');
@@ -64,7 +61,7 @@
             rEmail: String
         }
 
-        const ws = new WebSocket('ws://localhost:8888');
+        const ws = new WebSocket('ws:localhost:8888');
 
         ws.onopen = () =>
         {
@@ -81,6 +78,7 @@
         {
             const newName = racerName.value.trim();
             const newEmail = racerEmail.value.trim();
+            const messageType = "registration";
 
             const newRacer = Object.create(racer);
 
@@ -90,13 +88,10 @@
             }
             else
             {
-                ws.send(newName + "," + newEmail);
+                ws.send(messageType + "," + newName + "," + newEmail);
+                // ws.send(newName + "," + newEmail);
                 racerName.value = '';
                 racerEmail.value = '';
-
-                racerAray.push(newRacer);
-
-                racers.value = racerArray;
             }
             //return false;
         }

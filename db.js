@@ -259,7 +259,6 @@ async function addRacer(idFilter, raceInfo)
                 },
             };
             await Vehicle.updateOne(vehicleFilter, updateVehicle);
-            //console.log("vehicle Status Updated");
             break;
         }
     }
@@ -280,13 +279,13 @@ async function addRacer(idFilter, raceInfo)
 //add race data to start a new race
 async function startRace(filter, data)
 {
-    console.log(data);
+    //console.log(data);
 
     let finalRace =
     {
         $set:
         {
-            status: data.raceStatus,
+            raceState: data.raceState,
             racers: data.racers,
             noOfLaps: data.noOfLaps
         },

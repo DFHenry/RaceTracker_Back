@@ -21,6 +21,10 @@ var rfid1 = new SerialPort(
 //global variables for RFID reader
 var fullMessage = "";
 var newRFID = "";
+var curRFID = "";
+
+//global variables for WebSocketServer
+// var curPage = "";
 
 //global variables for race creation
 let Racer =
@@ -43,6 +47,7 @@ import vehicleDb from "./db.js";
 import maintenanceDb from "./db.js";
 import raceDb from "./db.js";
 import { settings } from "node:cluster";
+import db from "./db.js";
 
 //server setup
 const app = express();
@@ -52,18 +57,25 @@ const wss = new WebSocketServer({server});
 //websocket connection and methods
 wss.on("connection", (ws, req) =>
 {
-    console.log("client connected");
+    console.log("client connected"); 
 
     //server receives message from AddRacer function from the RaceManagement page
-    ws.on("message", (newRacer) =>
+    ws.on("message", (data) =>
     {
-        startRace();
+        let temp = `${data}`;
+        let dataArray = temp.split(",");
 
-        async function startRace()
+        if(dataArray[0] == "registration")
+        {
+            curPage = dataArray[0];
+            addRacer(dataArray);
+        }
+
+        async function addRacer(newRacer)
         {
             //store info into a string, then split into an array
-            let temp = `${newRacer}`;
-            let racerArray = temp.split(",");
+            // let temp = `${newRacer}`;
+            // let racerArray = temp.split(",");
             let assignedVehicle = 0;
 
             let vehicles = await vehicleDb.getAllVehicles();
@@ -79,15 +91,14 @@ wss.on("connection", (ws, req) =>
                 {
                     assignedVehicle = vehicles[i].vehicleNumber;
                     console.log("Assigned Vehicle Number: " + assignedVehicle);
-                    // await delay(250);
                     break;
                 }
             }
 
             let racerToAdd = Object.create(Racer);
 
-            racerToAdd.rName = racerArray[0];
-            racerToAdd.rEmail = racerArray[1];
+            racerToAdd.rName = newRacer[1];
+            racerToAdd.rEmail = newRacer[2];
             racerToAdd.rVehicle = assignedVehicle;
 
             newRace.racers.push({racerName: racerToAdd.rName, racerEmail: racerToAdd.rEmail, vehicleNumber: racerToAdd.rVehicle});
@@ -96,7 +107,7 @@ wss.on("connection", (ws, req) =>
 
             await raceDb.addRacer(idFilter, newRace);
 
-            ws.send("<td>" + racerToAdd.rName + "</td><td>" + racerArray[1] + "</td><td>" + racerToAdd.rVehicle + "</td>");
+            ws.send("<td>" + racerToAdd.rName + "</td><td>" + racerToAdd.rEmail + "</td><td>" + racerToAdd.rVehicle + "</td>");
         }
     });
 
@@ -104,8 +115,8 @@ wss.on("connection", (ws, req) =>
     ws.on("close", () => console.log("client disconnected"));
 });
 
+//set port and directory
 const port = process.env.PORT || "8888";
-
 const __dirname = import.meta.dirname;
 
 //ejs setup
@@ -125,7 +136,7 @@ rfid1.on("data", async function(data)
     if(data != "" && data != null && data != undefined)
     {
         fullMessage += data;
-        await delay(500);
+        await delay(50);
 
         let sendMessage = fullMessage.trim();
 
@@ -221,8 +232,18 @@ app.get("/dashboard", async (req, res) =>
     });
 });
 
-app.get("/raceRegistration", (req, res) =>
+app.get("/raceRegistration", async (req, res) =>
 {
+    var curRace = await raceDb.getRaceData();
+
+    curRace.raceState = "registration";
+
+    console.log(curRace.raceState);
+
+    let idFilter = {_id: new ObjectId(String(curRace._id)) };
+
+    await db.startRace(idFilter, curRace);
+
     res.render("raceReg");
 });
 
