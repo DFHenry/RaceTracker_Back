@@ -165,7 +165,7 @@ app.use(express.urlencoded({extended:true}));
 //use JSON data
 app.use(express.json());
 
-//rfid Reader function
+//rfid Reader
 rfid1.on("data", async function(data)
 {
     if(data != "" && data != null && data != undefined)
@@ -388,7 +388,7 @@ app.post("/raceRegistration/startRace/submit", async (req, res) =>
         raceState: "running",
         racers: curRace.racers,
         noOfLaps: parseInt(req.body.noOfLaps)
-    }
+    };
 
     //console.log("new race: " + newRace);
 
@@ -406,8 +406,15 @@ app.post("/raceRegistration/startRace/submit", async (req, res) =>
 
 app.post("/finishRace/submit", async (req, res) =>
 {
-    
-})
+    const newRaceRecord = JSON.parse(req.body.finishValue);
+
+    //console.log(newRaceRecord);
+
+    res.render("raceFinish",
+    {
+        raceRecord: newRaceRecord
+    });
+});
 
 function delay(milliseconds)
 {

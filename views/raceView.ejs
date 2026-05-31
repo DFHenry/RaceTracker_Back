@@ -62,11 +62,12 @@
         <button id="startBtn">Start Race</button>
     </div>
 
-    <form action="/finishRace/submit" method="post">
+    <form id="finishBtn" style="display: none;" action="/finishRace/submit" method="post">
+        <input type="hidden" name="finishValue" id="finishValue" value="">
         <button type="submit">Finish Race</button>
     </form>
 
-    <form action="/stopRace/submit" id="stopBtn">
+    <form id="stopBtn" action="/stopRace/submit" method="post">
         <button>Stop Race</button>
     </form>
 
@@ -78,6 +79,7 @@
         let raceLaps = document.getElementById("raceLaps");
         let startBtn = document.getElementById("startBtn");
         let stopBtn = document.getElementById("stopBtn");
+        let finishValue = document.getElementById("finishValue");
         let finishBtn = document.getElementById("finishBtn");
 
         //race data from the DB
@@ -99,14 +101,28 @@
         var lapRecord;
         var currentLap = 0;
 
+        //lap object
+        var lap = 
+        {
+            racerName: String,
+            raceVehicle: Number,
+            vehicleRFID: String,
+            lapTime: String,
+            lapNumber: Number,
+            polePosition: String
+        }
+
         //lap counter for each car
         var lapCounter = [];
+        var lapInfo = [];
 
         //pole positions and ordinals
         var polePositions = [];
         let poleRecord = 0;
         var poleOrdinals = ["0th", "1st", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th"];
 
+        //post-race variables
+        var newRaceRecord;
 
         //race initialization
 
@@ -188,9 +204,22 @@
                     }
                 }
 
+                var newLap = Object.create(lap);
+                
+                newLap.racerName = racerRecord.racerName;
+                newLap.raceVehicle = racerRecord.vehicleNumber;
+                newLap.vehicleRFID = dataArray[1];
+                newLap.lapTime = dataArray[2] + ":" + dataArray[3] + ":" + dataArray[4];
+                newLap.lapNumber = lapRecord;
+                newLap.polePosition = poleOrdinals[poleRecord];
+
+                lapInfo.push(newLap);
+
+                // console.log(lapInfo);
+
                 raceLaps.innerHTML += "<tr><td>" + racerRecord.racerName + "</td><td>" + racerRecord.vehicleNumber + "</td><td>" + dataArray[2] + ":" + dataArray[3] + ":" + dataArray[4] + "</td><td>Lap " + lapRecord + "/" + raceData.noOfLaps + "</td><td>" + poleOrdinals[poleRecord] + "</td></tr>";
 
-                console.log("Lap Made By Tag " + dataArray[1] + " at time index " + dataArray[2] + ":" + dataArray[3] + ":" + dataArray[4]);
+                //console.log("Lap Made By Tag " + dataArray[1] + " at time index " + dataArray[2] + ":" + dataArray[3] + ":" + dataArray[4]);
 
                 checkEnd();
             }
@@ -274,7 +303,7 @@
             setTimeout(raceTimer, 10);
         }
 
-        function checkEnd()
+        async function checkEnd()
         {
             console.log("Checking if all racers have finished their laps");
 
@@ -296,11 +325,15 @@
 
                 var newRaceRecord = 
                 {
-                    raceDateTime = Date.now(),
-                    racers = dataArray.racers,
-                    finalPositions = polePositions,
-                    noOfLaps = dataArray.noOfLaps
-                }
+                    raceDateTime: Date.now(),
+                    noOfLap: raceData.noOfLaps,
+                    racer: raceData.racers,
+                    lapRecords: lapInfo,
+                    finalPositions: polePositions
+                };
+
+                var raceRecordData = JSON.stringify(newRaceRecord);
+                finishValue.value = raceRecordData;
 
                 startBtn.style.display = "none";
                 stopBtn.style.display = "none";

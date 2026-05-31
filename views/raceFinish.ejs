@@ -7,5 +7,13 @@
 </head>
 <body>
     <h1>Post-Race Details</h1>
+
+    <!-- <p><%= JSON.stringify(raceRecord) %></p> -->
+
+    <script>
+        var newRaceRecord = <%- JSON.stringify(raceRecord) %>;
+
+        console.log(newRaceRecord);
+    </script>
 </body>
 </html>

@@ -7,11 +7,12 @@ const dbUrl = `mongodb+srv://${process.env.DBUSER}:${process.env.DBPWD}@${proces
 
 //  +++ USER ACCOUNT DATA +++
 
-//get users from collection
+//get mongoDB collections
 const userDb = new MongoClient(dbUrl).db("users");
 const vehicleDb = new MongoClient(dbUrl).db("vehicles");
 const maintenanceDb = new MongoClient(dbUrl).db("maintenancelogs");
 const raceDb = new MongoClient(dbUrl).db("raceInfo");
+//const previousRaceDB = new MongoClient(dbUrl).db("previousRaces");
 
 //user schema
 const UserSchema = new mongoose.Schema(
