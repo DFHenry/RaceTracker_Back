@@ -67,7 +67,7 @@ wss.on("connection", (ws, req) =>
         let temp = `${data}`;
         let dataArray = temp.split(",");
 
-        //based on dataArray[0], perform an async function
+        //  based on dataArray[0], perform an async function
 
         //call addRacer function if the dataArray[0] string is "registration"
         if(dataArray[0] == "registration")
@@ -76,12 +76,6 @@ wss.on("connection", (ws, req) =>
             addRacer(dataArray);
         }
 
-        else if(dataArray[0] == "initializeRace")
-        {
-            initializeNewRace();
-        }
-
-        //call checkRFID function if the dataArray[0] string is "checkRFID";
         else if(dataArray[0] == "checkRFID")
         {
             checkRFID(dataArray);
@@ -130,23 +124,6 @@ wss.on("connection", (ws, req) =>
             ws.send("<td>" + racerToAdd.rName + "</td><td>" + racerToAdd.rEmail + "</td><td>" + racerToAdd.rVehicle + "</td><td>" + racerToAdd.vehicleRFID + "</td>");
         }
 
-        async function initializeNewRace()
-        {
-            let initRace = await vehicleDb.getAllVehicles();
-            var activeTags = "activeTags,";
-
-            for(let i = 0; i < initRace.length; i++)
-            {
-                if(initRace[i].status === "active")
-                {
-                    activeTags += initRace[i].tagHex + ",";
-                }
-            }
-            newRFID = "";
-            ws.send(activeTags);
-
-        }
-
         async function checkRFID(checkData)
         {
             if(newRFID == "")
@@ -188,7 +165,7 @@ app.use(express.urlencoded({extended:true}));
 //use JSON data
 app.use(express.json());
 
-//rfid Reader code
+//rfid Reader function
 rfid1.on("data", async function(data)
 {
     if(data != "" && data != null && data != undefined)
@@ -408,24 +385,29 @@ app.post("/raceRegistration/startRace/submit", async (req, res) =>
 
     let newRace =
     {
-        raceState: curRace.raceState,
+        raceState: "running",
         racers: curRace.racers,
         noOfLaps: parseInt(req.body.noOfLaps)
     }
 
-    console.log("new race: " + newRace);
+    //console.log("new race: " + newRace);
 
     await raceDb.startRace(idFilter, newRace);
 
     const finalRace = await raceDb.getRaceData();
 
-    console.log("final race: " + finalRace);
+    //console.log("final race: " + finalRace);
 
     res.render("raceView", 
     {
         race: finalRace
     });
 });
+
+app.post("/finishRace/submit", async (req, res) =>
+{
+    
+})
 
 function delay(milliseconds)
 {
