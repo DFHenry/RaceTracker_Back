@@ -47,6 +47,7 @@ import userDb from "./db.js";
 import vehicleDb from "./db.js";
 import maintenanceDb from "./db.js";
 import raceDb from "./db.js";
+import raceRecordDb from "./db.js";
 import { settings } from "node:cluster";
 import db from "./db.js";
 
@@ -406,14 +407,98 @@ app.post("/raceRegistration/startRace/submit", async (req, res) =>
 
 app.post("/finishRace/submit", async (req, res) =>
 {
+    //finalized race data parsed into json
     const newRaceRecord = JSON.parse(req.body.finishValue);
 
-    //console.log(newRaceRecord);
+    //create an object from the json data to add to the DB
+    let addedRaceRecord = 
+    {
+        raceDateTime: newRaceRecord.raceDateTime,
+        finaPositions: newRaceRecord.finalPositions,
+        lapRecords:  newRaceRecord.lapRecords,
+        noOfLaps: newRaceRecord.noOfLaps,
+        racers: newRaceRecord.racers
+    };
 
+    //add record to the raceRecords collection
+    await raceRecordDb.addFinalizedRaceData(addedRaceRecord);
+
+    //load raceFinish.ejs and pass data to it
     res.render("raceFinish",
     {
         raceRecord: newRaceRecord
     });
+});
+
+app.post("/finishRace/newRace/submit", async (req, res) =>
+{
+    //reset race data
+    var curRace = await raceDb.getRaceData();
+
+    curRace.raceState = "registration";
+    curRace.racers.length = 0;
+    curRace.noOfLaps = 1;
+
+    console.log(curRace.raceState);
+
+    let idFilter = {_id: new ObjectId(String(curRace._id)) };
+
+    await db.startRace(idFilter, curRace);
+
+    //reset active vehicle data
+    var vehicles = await vehicleDb.getAllVehicles();
+
+    for(let i = 0; i < vehicles.length; i++)
+    {
+        if(vehicles[i].status == "active")
+        {
+            let vehicleId = {_id: new ObjectId(String(vehicles[i]._id))}
+
+            let vehicle = vehicles[i];
+
+            vehicle.status = "idle";
+
+            await vehicleDb.editVehicle(vehicleId, vehicle);
+        }
+    }
+    res.render("raceReg");
+
+});
+
+app.post("/finishRace/dashboard/submit", async (req, res) =>
+{
+    //reset race data
+    var curRace = await raceDb.getRaceData();
+
+    curRace.raceState = "standby";
+    curRace.racers.length = 0;
+    curRace.noOfLaps = 1;
+
+    console.log(curRace.raceState);
+
+    let idFilter = {_id: new ObjectId(String(curRace._id)) };
+
+    await db.startRace(idFilter, curRace);
+
+    //reset active vehicle data
+    var vehicles = await vehicleDb.getAllVehicles();
+
+    for(let i = 0; i < vehicles.length; i++)
+    {
+        if(vehicles[i].status == "active")
+        {
+            console.log("changing vehicle " + vehicles[i]._id);
+            let vehicleId = {_id: new ObjectId(String(vehicles[i]._id)) };
+
+            let vehicle = vehicles[i];
+
+            vehicle.status = "idle";
+
+            await vehicleDb.editVehicle(vehicleId, vehicle);
+        }
+    }
+
+    res.redirect("/dashboard");
 });
 
 function delay(milliseconds)

@@ -8,12 +8,56 @@
 <body>
     <h1>Post-Race Details</h1>
 
-    <!-- <p><%= JSON.stringify(raceRecord) %></p> -->
+    <table>
+        <thead>
+            <th>Place</th>
+            <th>Name</th>
+            <th>Vehicle No.</th>
+            <th>Total Time</th>
+        </thead>
+        <tbody id="poleTableBody">
+
+        </tbody>
+    </table>
+
+    <form action="/finishRace/newrace/submit" method="post">
+        <button type="submit">Start New Race</button>
+    </form>
+
+    <form action="/finishRace/dashboard/submit" method="post">
+        <button type="submit">Return To Dashboard</button>
+    </form>
 
     <script>
         var newRaceRecord = <%- JSON.stringify(raceRecord) %>;
 
         console.log(newRaceRecord);
+
+        var poleTableBody = document.getElementById("poleTableBody");
+
+        const poleOrdinals = ["0th", "1st", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th"];
+        var lapTime = ""
+ 
+        for(let i = 0; i < newRaceRecord.finalPositions.length; i++)
+        {
+            for(let x = 0; x < newRaceRecord.racers.length; x++)
+            {
+                if(newRaceRecord.finalPositions[i] == newRaceRecord.racers[x].vehicleRFID)
+                {
+                    for(let y = 0; y < newRaceRecord.lapRecords.length; y++)
+                    {
+                        if(newRaceRecord.finalPositions[i] == newRaceRecord.lapRecords[y].vehicleRFID)
+                        {
+                            lapTime = newRaceRecord.lapRecords[y].lapTime;
+                        }
+                    }
+
+                    poleTableBody.innerHTML += "<tr><td>" + poleOrdinals[i+1] + "</td><td>" + newRaceRecord.racers[x].racerName + "</td><td>" + newRaceRecord.racers[x].vehicleNumber + "</td><td>" + lapTime + "</td></tr>";
+                }
+            }
+        }
+
+        //console.log(newRaceRecord.raceDateTime);
     </script>
 </body>
 </html>

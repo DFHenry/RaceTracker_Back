@@ -12,7 +12,7 @@ const userDb = new MongoClient(dbUrl).db("users");
 const vehicleDb = new MongoClient(dbUrl).db("vehicles");
 const maintenanceDb = new MongoClient(dbUrl).db("maintenancelogs");
 const raceDb = new MongoClient(dbUrl).db("raceInfo");
-//const previousRaceDB = new MongoClient(dbUrl).db("previousRaces");
+const raceRecordDb = new MongoClient(dbUrl).db("raceRecords");
 
 //user schema
 const UserSchema = new mongoose.Schema(
@@ -75,6 +75,30 @@ const RaceSchema = new mongoose.Schema(
 
 //race model
 const Race = mongoose.model("Race", RaceSchema);
+
+//lapRecord schema for RaceRecord.lapRecords array
+const lapRecord = new mongoose.Schema(
+{
+    lapNumber: Number,
+    lapTime: String,
+    polePosition: String,
+    raceVehicle: Number,
+    racerName: String,
+    vehicleRFID: String
+});
+
+//raceRecord schema
+const RaceRecordSchema = new mongoose.Schema(
+{
+    raceDateTime: Date,
+    finaPositions: [String],
+    lapRecords: [lapRecord],
+    noOfLaps: Number,
+    racers: []
+});
+
+//raceRecord model
+const RaceRecord = mongoose.model("RaceRecord", RaceRecordSchema);
 
 //  +++ DB CONNECTION +++
 
@@ -296,6 +320,20 @@ async function startRace(filter, data)
     await Race.updateOne(filter, finalRace);
 }
 
+async function addFinalizedRaceData(newRaceRecord)
+{
+    let raceRecordToAdd = 
+    {
+        raceDateTime: newRaceRecord.raceDateTime,
+        finaPositions: newRaceRecord.finalPositions,
+        lapRecords: newRaceRecord.lapRecords,
+        noOfLaps: newRaceRecord.noOfLaps,
+        racers: newRaceRecord.racers
+    }
+
+    await RaceRecord.insertOne(newRaceRecord);
+}
+
 //method exports
 export default
 {
@@ -314,5 +352,6 @@ export default
     initializeRaceData,
     getRaceData,
     addRacer,
-    startRace
+    startRace,
+    addFinalizedRaceData
 }
