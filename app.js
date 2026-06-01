@@ -74,9 +74,16 @@ wss.on("connection", (ws, req) =>
             addRacer(dataArray);
         }
 
-        else if(dataArray[0] == "checkRFID")
+        else if(dataArray[0] == "findRFID")
         {
-            checkRFID(dataArray);
+            //console.log(dataArray);
+            sendRFID(dataArray);
+        }
+
+        async function sendRFID(data)
+        {
+            let sendRFID = "detectedRFID," + newRFID + ",";
+            ws.send(sendRFID);
         }
 
         //add a racer to the race information on the db and send it back to the page via websocket message
@@ -165,7 +172,6 @@ app.use(express.json());
 //rfid Reader
 rfid1.on("data", async function(data)
 {
-    //console.log("ping");
     if(data != "" && data != null && data != undefined)
     {
         fullMessage += data;
@@ -180,10 +186,6 @@ rfid1.on("data", async function(data)
             fullMessage = "";
             sendMessage = "";
         }
-    }
-    else
-    {
-        console.log("pong");
     }
 });
 
@@ -320,6 +322,8 @@ app.get("/raceRegistration", async (req, res) =>
 //view details of one vehicle
 app.get("/viewVehicle", async (req, res) => 
 {
+    newRFID = "";
+
     let vehicleToView = await vehicleDb.getOneVehicle(req.query.vehicleId);
     let maintenanceLogView = await maintenanceDb.getAllLogs(req.query.vehicleNumber);
 
@@ -383,13 +387,9 @@ app.post("/viewVehicle/deleteVehicle/submit", async (req, res) =>
 //load vehicle registry
 app.get("/registerVehicle", (req, res) =>
 {
-    const hexCode = newRFID;
+    newRFID = "";
 
-    res.render("registerVehicle",
-        {
-            newHex: hexCode
-        }
-    );
+    res.render("registerVehicle");
 });
 
 //add vehicle to registry
@@ -437,6 +437,72 @@ app.post("/raceRegistration/startRace/submit", async (req, res) =>
     });
 });
 
+app.post("/raceRegistration/dashboard/submit", async (req, res) => 
+{
+    //reset current race data
+    var curRace = await raceDb.getRaceData();
+
+    curRace.raceState = "standby";
+    curRace.racers.length = 0;
+    curRace.noOfLaps = 1;
+
+    let idFilter = {_id: new ObjectId(String(curRace._id)) };
+
+    await db.startRace(idFilter, curRace);
+
+    //reset active vehicle data
+    var vehicles = await vehicleDb.getAllVehicles();
+
+    for(let i = 0; i < vehicles.length; i++)
+    {
+        if(vehicles[i].status == "active")
+        {
+            let vehicleId = {_id: new ObjectId(String(vehicles[i]._id)) };
+
+            let vehicle = vehicles[i];
+
+            vehicle.status = "idle";
+
+            await vehicleDb.editVehicle(vehicleId, vehicle);
+        }
+    }
+
+    res.redirect("/dashboard"); 
+});
+
+app.post("/stopRace/submit", async (req, res) => 
+{
+    //reset current race data
+    var curRace = await raceDb.getRaceData();
+
+    curRace.raceState = "standby";
+    curRace.racers.length = 0;
+    curRace.noOfLaps = 1;
+
+    let idFilter = {_id: new ObjectId(String(curRace._id)) };
+
+    await db.startRace(idFilter, curRace);
+
+    //reset active vehicle data
+    var vehicles = await vehicleDb.getAllVehicles();
+
+    for(let i = 0; i < vehicles.length; i++)
+    {
+        if(vehicles[i].status == "active")
+        {
+            let vehicleId = {_id: new ObjectId(String(vehicles[i]._id)) };
+
+            let vehicle = vehicles[i];
+
+            vehicle.status = "idle";
+
+            await vehicleDb.editVehicle(vehicleId, vehicle);
+        }
+    }
+
+    res.redirect("/dashboard"); 
+});
+
 app.post("/finishRace/submit", async (req, res) =>
 {
     //finalized race data parsed into json
@@ -470,8 +536,6 @@ app.post("/finishRace/newRace/submit", async (req, res) =>
     curRace.raceState = "registration";
     curRace.racers.length = 0;
     curRace.noOfLaps = 1;
-
-    console.log(curRace.raceState);
 
     let idFilter = {_id: new ObjectId(String(curRace._id)) };
 

@@ -13,7 +13,7 @@
         <label for="vehicleNumber">Vehicle Number: </label>
         <input type="number" name="vehicleNumber" id="vehicleNumber">
         <label for="tagHex">RFID Hex Code: </label>
-        <input type="text" name="tagHex" id="tagHex" value="<%= newHex %>" placeholder="<%= newHex %>">
+        <input type="text" name="tagHex" id="tagHex">
         <input type="hidden" name="status" id="status" value="idle">
         <button type="submit">Add New Vehicle</button>
     </form>
@@ -24,7 +24,36 @@
     </form>
     
     <script>
-        // var socket = io();
+        const tagHex = document.getElementById("tagHex");
+
+        const ws = new WebSocket('ws:localhost:8888');
+
+        ws.onopen = () =>
+        {
+            console.log("connected to server");
+        }
+
+        ws.onmessage = (event) =>
+        {
+            let temp = event.data
+            temp = temp.slice(0,-1);
+
+            let dataArray = temp.split(",");
+
+            if(dataArray[0] === "detectedRFID")
+            {
+                tagHex.value = dataArray[1];
+            }
+        }
+
+        setInterval(checkForRFID, 250);
+
+        function checkForRFID()
+        {
+            ws.send("findRFID,ping");
+
+            setTimeout(checkForRFID, 250);
+        }
         
     </script>
 </body>
