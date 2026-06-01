@@ -11,10 +11,10 @@ import { createServer } from "http";
 import { WebSocketServer } from "ws";
 // import { setTimeout } from "node:timers/promises";
 
-//RFID Reader !!! May need to change path based on which port/OS you're using
+//RFID Reader !!! Change the RFIDPORT variable in the .env to the name of whichever port your Arduino board is plugged into
 var rfid1 = new SerialPort(
 {
-    path: "COM5",
+    path: process.env.RFIDPORT,
     baudRate: 9600
 });
 
@@ -22,9 +22,6 @@ var rfid1 = new SerialPort(
 var fullMessage = "";
 var newRFID = "";
 var curRFID = "";
-
-//global variables for WebSocketServer
-// var curPage = "";
 
 //global variables for race creation
 let Racer =
@@ -144,7 +141,6 @@ wss.on("connection", (ws, req) =>
                 newRFID = "";
             }
         }
-
     });
 
     //when a client disconnects from the server
@@ -169,6 +165,7 @@ app.use(express.json());
 //rfid Reader
 rfid1.on("data", async function(data)
 {
+    //console.log("ping");
     if(data != "" && data != null && data != undefined)
     {
         fullMessage += data;
@@ -183,6 +180,10 @@ rfid1.on("data", async function(data)
             fullMessage = "";
             sendMessage = "";
         }
+    }
+    else
+    {
+        console.log("pong");
     }
 });
 
@@ -250,6 +251,8 @@ app.post("/login/newUser", async (req, res) =>
     await userDb.addUser(newUser);
 });
 
+//  +++ DASHBOARD METHODS +++
+
 //load dashboard after logging in
 app.get("/dashboard", async (req, res) => 
 {
@@ -282,6 +285,35 @@ app.get("/raceRegistration", async (req, res) =>
 
     res.render("raceReg");
 });
+
+// app.post("/dashboard/connectRFID/submit", async (req, res) =>
+// {
+
+    // let rfidPort = req.body.RFIDPort;
+
+    // rfid1 = new SerialPort(
+    // {
+    //     path: rfidPort,
+    //     baudRate: 9600
+    // });
+
+    // await delay(500);
+
+    // rfid1.open(function(err)
+    // {
+    //     if(err)
+    //     {
+    //         console.log("error opening port: " + err);
+    //     }
+    // })
+
+    // rfid1.on('open', function()
+    // {
+    //     console.log("port is now open");
+    // });
+
+//     res.redirect("/dashboard");
+// });
 
 //  +++ VEHICLE CRUD FUNCITONS +++
 
