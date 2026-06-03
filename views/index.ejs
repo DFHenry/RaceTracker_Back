@@ -3,19 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
     <title>Dave's RFID Race Tracking System</title>
 </head>
 
 <body>
+<div class="container">    
     <h1>Dave's RFID Race Tracking System</h1>
-    <div id="loginContainer">
+    <div id="loginContainer" class="mb-3" style="max-width: 50%;">
         <h2>Login</h2>
         <form action="/login/submit" method="post">
             <label for="username">Username: </label>
-            <input type="text" name="username" id="username">
+            <input class="form-control" type="text" name="username" id="username">
             <label for="password">Password: </label>
-            <input type="password" name="password" id="password">
-            <button type="submit">Login</button>
+            <input class="form-control" type="password" name="password" id="password">
+            <button class="btn btn-primary" type="submit">Login</button>
         </form>
     </div>
     <!-- <br />
@@ -29,6 +33,6 @@
             <button type="submit">Add User</button>           
         </form>
     </div> -->
-
+</div>
 </body>
 </html>

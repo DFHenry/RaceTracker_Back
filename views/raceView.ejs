@@ -3,21 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+    <title>Race In Progress - David's RFID Race Tracking System</title>
 </head>
 <body>
+<div class="container">
     <h1>Start Race</h1>
 
     <!-- Race Information -->
     <div id="raceInfo">
         <p>Number of Laps: <%= race.noOfLaps %></p>
-        <p>Race is <%= race.raceState %></p>
+        <!-- <p>Race is <%= race.raceState %></p> -->
         <p id="countdown"></p>
         <p id="stopWatch">00:00:00</p>
     </div>
 
     <h2>Laps</h2>
-    <table>
+    <table class="table table-striped">
         <thead>
             <th>Racer</th>
             <th>Vehicle</th>
@@ -38,7 +42,7 @@
     </table>
 
     <h2>Racers</h2>
-    <table>
+    <table class="table table-striped table-sm">
         <thead>
             <th>Racers</th>
             <th>Vehicle Number</th>
@@ -59,20 +63,18 @@
     </table>
 
     <div>
-        <button id="startBtn">Start Race</button>
+        <button class="btn btn-info" id="startBtn">Start Race</button>
     </div>
 
     <form id="finishBtn" style="display: none;" action="/finishRace/submit" method="post">
         <input type="hidden" name="finishValue" id="finishValue" value="">
-        <button type="submit">Finish Race</button>
+        <button class="btn btn-primary" type="submit">Finish Race</button>
     </form>
-
+    <br>
     <form id="stopBtn" action="/stopRace/submit" method="post">
-        <button>Stop Race</button>
+        <button class="btn btn-danger">Stop Race</button>
     </form>
-
-    <!-- <p id="hiddenObject" style="display: none;"><%= race %></p> -->
-
+</div>
     <script>
         //html elements
         let stopWatch = document.getElementById("stopWatch");
@@ -126,6 +128,8 @@
 
         //race initialization
 
+        console.log(raceData);
+
         //place a record into the lapCounter array for each racer
         for(let i = 0; i < raceData.racers.length; i++)
         {
@@ -159,10 +163,15 @@
                     if(raceData.racers[x].vehicleRFID === dataArray[1] && lapCounter[x] < raceData.noOfLaps)
                     {
                         //update lap information
+                        console.log("Valid Tag Detected: " + dataArray[1]);
                         lapCounter[x] += 1;
                         lapRecord = lapCounter[x];
                         racerRecord = raceData.racers[x];
                         break;
+                    }
+                    else
+                    {
+                        console.log("Tag not valid for this race");
                     }
                 }
 
@@ -205,6 +214,8 @@
                 }
 
                 var newLap = Object.create(lap);
+
+                //console.log(newLap);
                 
                 newLap.racerName = racerRecord.racerName;
                 newLap.raceVehicle = racerRecord.vehicleNumber;

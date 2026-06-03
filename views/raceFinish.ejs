@@ -3,12 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+    <title>Race Results - David's RFID Race Tracking System</title>
 </head>
 <body>
+<div class="container">
     <h1>Post-Race Details</h1>
 
-    <table>
+    <table class="table table-striped">
         <thead>
             <th>Place</th>
             <th>Name</th>
@@ -21,13 +25,13 @@
     </table>
 
     <form action="/finishRace/newrace/submit" method="post">
-        <button type="submit">Start New Race</button>
+        <button class="btn btn-primary" type="submit">Start New Race</button>
     </form>
-
+    <br>
     <form action="/finishRace/dashboard/submit" method="post">
-        <button type="submit">Return To Dashboard</button>
+        <button class="btn btn-info" type="submit">Return To Dashboard</button>
     </form>
-
+</div>
     <script>
         var newRaceRecord = <%- JSON.stringify(raceRecord) %>;
 

@@ -76,14 +76,19 @@ wss.on("connection", (ws, req) =>
 
         else if(dataArray[0] == "findRFID")
         {
-            //console.log(dataArray);
             sendRFID(dataArray);
+        }
+
+        else if(dataArray[0] == "checkRFID")
+        {
+            checkRFID(dataArray);
         }
 
         async function sendRFID(data)
         {
-            let sendRFID = "detectedRFID," + newRFID + ",";
+            let sendRFID = "checkRFID," + newRFID + ",";
             ws.send(sendRFID);
+            dataArray.length = 0;
         }
 
         //add a racer to the race information on the db and send it back to the page via websocket message
@@ -127,6 +132,7 @@ wss.on("connection", (ws, req) =>
             await raceDb.addRacer(idFilter, newRace);
 
             ws.send("<td>" + racerToAdd.rName + "</td><td>" + racerToAdd.rEmail + "</td><td>" + racerToAdd.rVehicle + "</td><td>" + racerToAdd.vehicleRFID + "</td>");
+            dataArray.length = 0;
         }
 
         async function checkRFID(checkData)
@@ -146,6 +152,7 @@ wss.on("connection", (ws, req) =>
                 ws.send("detectedRFID," + newRFID + "," + minutesLog + "," + secondsLog + "," + dSecondsLog + ",");
 
                 newRFID = "";
+                dataArray.length = 0;
             }
         }
     });

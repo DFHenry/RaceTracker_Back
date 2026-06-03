@@ -3,13 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+    <title>Dashboard - Dave's RFID Race Tracking System</title>
 </head>
 <body>
+<div class="container">
     <h1>Dashboard</h1>
 
     <h2>Vehicle Registry</h2>
-    <table>
+    <table class="table table-sm table-striped">
         <thead>
             <th>Vehicle No.</th>
             <th>RFID Tag</th>
@@ -25,25 +29,24 @@
                 <form action="/viewVehicle" method="get">
                     <input type="hidden" name="vehicleId" value="<%= vehicle._id %>">
                     <input type="hidden" name="vehicleNumber" value="<%= vehicle.vehicleNumber %>">
-                    <button type="submit">View Details</button>
+                    <button class="btn btn-success" type="submit">View Details</button>
                 </form>
-
             </td>
         </tr>
         <% }); %>
     </table>
 
     <form action="/registerVehicle" method="get">
-        <button type="submit">Add New Vehicle</button>
+        <button class="btn btn-primary" type="submit">Add New Vehicle</button>
     </form>
 
     <h2>Race Management</h2>
     <form action="/raceRegistration">
-        <button>Start New Race</button>
+        <button class="btn btn-primary">Start New Race</button>
     </form>
 
     <h2>Lap Records</h2>
-    <table>
+    <table class="table table-striped">
         <thead>
             <th>Record</th>
             <th>Lap Time</th>
@@ -54,38 +57,40 @@
             <th>All Time</th>
             <td>00:00:00</td>
             <td>May 12, 12:43PM</td>
-            <td><button>View Previous records</button></td>
+            <td><button class="btn btn-success">View Previous records</button></td>
         </tr>
         <tr>
             <th>Annual</th>
             <td>00:00:00</td>
             <td>May 12, 12:43PM</td>
-            <td><button>View Previous records</button></td>
+            <td><button class="btn btn-success">View Previous records</button></td>
         </tr>
         <tr>
             <th>Month</th>
             <td>00:00:00</td>
             <td>May 12, 12:43PM</td>
-            <td><button>View Previous records</button></td>
+            <td><button class="btn btn-success">View Previous records</button></td>
         </tr>
         <tr>
             <th>Week</th>
             <td>00:00:00</td>
             <td>May 12, 12:43PM</td>
-            <td><button>View Previous records</button></td>
+            <td><button class="btn btn-success">View Previous records</button></td>
         </tr>
         <tr>
             <th>Today</th>
             <td>00:00:00</td>
             <td>May 12, 12:43PM</td>
-            <td><button>View Previous records</button></td>
+            <td><button class="btn btn-success">View Previous records</button></td>
         </tr>
     </table>
 
     <h2>Utility</h2>
 
     <form action="/login/logout" method="get">
-        <button type="submit">Logout</button>
+        <button class="btn btn-primary" type="submit">Logout</button>
     </form>
+</div>
+
 </body>
 </html>
