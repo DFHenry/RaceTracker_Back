@@ -167,6 +167,7 @@
                         lapCounter[x] += 1;
                         lapRecord = lapCounter[x];
                         racerRecord = raceData.racers[x];
+                        addNewLap(dataArray);
                         break;
                     }
                     else
@@ -176,63 +177,63 @@
                 }
 
                 //pole position update      
-                if(polePositions.length == 0)
-                {
-                    polePositions.push(dataArray[1]);
+                // if(polePositions.length == 0)
+                // {
+                //     polePositions.push(dataArray[1]);
 
-                    poleRecord += 1;
-                    //console.log("initial pole record: " + poleRecord + " by " + polePositions[y]);
-                }
-                else if(polePositions.length > 0)
-                {
-                    let onPolePosition = false;
+                //     poleRecord += 1;
+                //     //console.log("initial pole record: " + poleRecord + " by " + polePositions[y]);
+                // }
+                // else if(polePositions.length > 0)
+                // {
+                //     let onPolePosition = false;
 
-                    for(let y = 0; y < polePositions.length; y++)
-                    {
-                        if(polePositions[y] == dataArray[1])
-                        {
-                            onPolePosition = true;
-                            break;
-                        }
-                        else
-                        {
-                            onPolePosition = false;
-                        }
-                    }
+                //     for(let y = 0; y < polePositions.length; y++)
+                //     {
+                //         if(polePositions[y] == dataArray[1])
+                //         {
+                //             onPolePosition = true;
+                //             break;
+                //         }
+                //         else
+                //         {
+                //             onPolePosition = false;
+                //         }
+                //     }
 
-                    if(onPolePosition == true)
-                    {
-                        polePositions.length = 0;
-                        polePositions.push(dataArray[1]);
-                        poleRecord = 1;
-                    }
-                    else
-                    {
-                        polePositions.push(dataArray[1]);
-                        poleRecord += 1;
-                    }
-                }
+                //     if(onPolePosition == true)
+                //     {
+                //         polePositions.length = 0;
+                //         polePositions.push(dataArray[1]);
+                //         poleRecord = 1;
+                //     }
+                //     else
+                //     {
+                //         polePositions.push(dataArray[1]);
+                //         poleRecord += 1;
+                //     }
+                // }
 
-                var newLap = Object.create(lap);
+                // var newLap = Object.create(lap);
 
-                //console.log(newLap);
+                // //console.log(newLap);
                 
-                newLap.racerName = racerRecord.racerName;
-                newLap.raceVehicle = racerRecord.vehicleNumber;
-                newLap.vehicleRFID = dataArray[1];
-                newLap.lapTime = dataArray[2] + ":" + dataArray[3] + ":" + dataArray[4];
-                newLap.lapNumber = lapRecord;
-                newLap.polePosition = poleOrdinals[poleRecord];
+                // newLap.racerName = racerRecord.racerName;
+                // newLap.raceVehicle = racerRecord.vehicleNumber;
+                // newLap.vehicleRFID = dataArray[1];
+                // newLap.lapTime = dataArray[2] + ":" + dataArray[3] + ":" + dataArray[4];
+                // newLap.lapNumber = lapRecord;
+                // newLap.polePosition = poleOrdinals[poleRecord];
 
-                lapInfo.push(newLap);
+                // lapInfo.push(newLap);
 
-                // console.log(lapInfo);
+                // // console.log(lapInfo);
 
-                raceLaps.innerHTML += "<tr><td>" + racerRecord.racerName + "</td><td>" + racerRecord.vehicleNumber + "</td><td>" + dataArray[2] + ":" + dataArray[3] + ":" + dataArray[4] + "</td><td>Lap " + lapRecord + "/" + raceData.noOfLaps + "</td><td>" + poleOrdinals[poleRecord] + "</td></tr>";
+                // raceLaps.innerHTML += "<tr><td>" + racerRecord.racerName + "</td><td>" + racerRecord.vehicleNumber + "</td><td>" + dataArray[2] + ":" + dataArray[3] + ":" + dataArray[4] + "</td><td>Lap " + lapRecord + "/" + raceData.noOfLaps + "</td><td>" + poleOrdinals[poleRecord] + "</td></tr>";
 
-                //console.log("Lap Made By Tag " + dataArray[1] + " at time index " + dataArray[2] + ":" + dataArray[3] + ":" + dataArray[4]);
+                // //console.log("Lap Made By Tag " + dataArray[1] + " at time index " + dataArray[2] + ":" + dataArray[3] + ":" + dataArray[4]);
 
-                checkEnd();
+                // checkEnd();
             }
         }
 
@@ -312,6 +313,68 @@
             }
 
             setTimeout(raceTimer, 10);
+        }
+
+        function addNewLap(dataArray)
+        {
+            //update lap information
+            if(polePositions.length == 0)
+            {
+                polePositions.push(dataArray[1]);
+
+                poleRecord += 1;
+                //console.log("initial pole record: " + poleRecord + " by " + polePositions[y]);
+            }
+            else if(polePositions.length > 0)
+            {
+                let onPolePosition = false;
+
+                for(let y = 0; y < polePositions.length; y++)
+                {
+                    if(polePositions[y] == dataArray[1])
+                    {
+                        onPolePosition = true;
+                        break;
+                    }
+                    else
+                    {
+                        onPolePosition = false;
+                    }
+                }
+
+                if(onPolePosition == true)
+                {
+                    polePositions.length = 0;
+                    polePositions.push(dataArray[1]);
+                    poleRecord = 1;
+                }
+                else
+                {
+                    polePositions.push(dataArray[1]);
+                    poleRecord += 1;
+                }
+            }
+
+            var newLap = Object.create(lap);
+
+            //console.log(newLap);
+            
+            newLap.racerName = racerRecord.racerName;
+            newLap.raceVehicle = racerRecord.vehicleNumber;
+            newLap.vehicleRFID = dataArray[1];
+            newLap.lapTime = dataArray[2] + ":" + dataArray[3] + ":" + dataArray[4];
+            newLap.lapNumber = lapRecord;
+            newLap.polePosition = poleOrdinals[poleRecord];
+
+            lapInfo.push(newLap);
+
+            // console.log(lapInfo);
+
+            raceLaps.innerHTML += "<tr><td>" + racerRecord.racerName + "</td><td>" + racerRecord.vehicleNumber + "</td><td>" + dataArray[2] + ":" + dataArray[3] + ":" + dataArray[4] + "</td><td>Lap " + lapRecord + "/" + raceData.noOfLaps + "</td><td>" + poleOrdinals[poleRecord] + "</td></tr>";
+
+            //console.log("Lap Made By Tag " + dataArray[1] + " at time index " + dataArray[2] + ":" + dataArray[3] + ":" + dataArray[4]);
+
+            checkEnd();
         }
 
         async function checkEnd()
