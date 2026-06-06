@@ -94,9 +94,6 @@ wss.on("connection", (ws, req) =>
         //add a racer to the race information on the db and send it back to the page via websocket message
         async function addRacer(newRacer)
         {
-            //store info into a string, then split into an array
-            // let temp = `${newRacer}`;
-            // let racerArray = temp.split(",");
             let assignedVehicle = 0;
             let assignedRFID = "";
 
@@ -294,35 +291,6 @@ app.get("/raceRegistration", async (req, res) =>
 
     res.render("raceReg");
 });
-
-// app.post("/dashboard/connectRFID/submit", async (req, res) =>
-// {
-
-    // let rfidPort = req.body.RFIDPort;
-
-    // rfid1 = new SerialPort(
-    // {
-    //     path: rfidPort,
-    //     baudRate: 9600
-    // });
-
-    // await delay(500);
-
-    // rfid1.open(function(err)
-    // {
-    //     if(err)
-    //     {
-    //         console.log("error opening port: " + err);
-    //     }
-    // })
-
-    // rfid1.on('open', function()
-    // {
-    //     console.log("port is now open");
-    // });
-
-//     res.redirect("/dashboard");
-// });
 
 //  +++ VEHICLE CRUD FUNCITONS +++
 

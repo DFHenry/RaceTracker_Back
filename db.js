@@ -81,6 +81,7 @@ const lapRecord = new mongoose.Schema(
 {
     lapNumber: Number,
     lapTime: String,
+    singleLapTime: String,
     polePosition: String,
     raceVehicle: Number,
     racerName: String,

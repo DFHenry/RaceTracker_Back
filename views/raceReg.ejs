@@ -33,20 +33,20 @@
             <input type="text" name="racerName" id="racerName">
             <label for="racerEmail">Racer Email:</label>
             <input type="text" name="email" id="email">
-            <button onclick="addRacer()">Add Racer</button>
+            <button class="btn btn-primary" onclick="addRacer()">Add Racer</button>
         </div>
 
         <h2>Race Config</h2>
         <form action="/raceRegistration/startRace/submit" method="post" id="startRaceForm">
             <label for="laps">Number of Laps: </label>
             <input type="number" name="noOfLaps" value="1">
-            <button type="submit">Start Race</button>
+            <button class="btn btn-success" type="submit">Start Race</button>
         </form>
     </div>
 
     <!-- return to dashboard route -->
     <form action="/raceRegistration/dashboard/submit" id="returnForm" method="post">
-        <button type="submit">Return to Dashboard</button>
+        <button class="btn btn-primary" type="submit">Return to Dashboard</button>
     </form>
 
     <script>
@@ -98,7 +98,7 @@
                 racerName.value = '';
                 racerEmail.value = '';
             }
-            //return false;
+            racerName.focus();
         }
     </script>
 </div>

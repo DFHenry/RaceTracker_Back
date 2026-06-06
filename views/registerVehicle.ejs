@@ -13,6 +13,8 @@
 <div class="container">
     <h1>Add New Vehicle</h1>
 
+    <p style="background-color: rgb(141, 232, 255); padding: 20px; margin: 3px; border-radius: 5px;">Note: Scan the RFID tag you wish to use for this new vehicle.</p>
+
     <form action="/registerVehicle/submit" method="post">
         <label for="vehicleNumber">Vehicle Number: </label>
         <input type="number" name="vehicleNumber" id="vehicleNumber">
@@ -21,8 +23,6 @@
         <input type="hidden" name="status" id="status" value="idle">
         <button class="btn btn-success" type="submit">Add New Vehicle</button>
     </form>
-
-    <p style="background-color: rgb(141, 232, 255); padding: 20px; margin: 3px; border-radius: 5px;">Note: Scan the RFID tag you wish to use for this new vehicle.</p>
     
     <form action="/dashboard">
         <button class="btn btn-primary" type="submit">Return to Dashboard</button>
