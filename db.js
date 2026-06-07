@@ -13,6 +13,7 @@ const vehicleDb = new MongoClient(dbUrl).db("vehicles");
 const maintenanceDb = new MongoClient(dbUrl).db("maintenancelogs");
 const raceDb = new MongoClient(dbUrl).db("raceInfo");
 const raceRecordDb = new MongoClient(dbUrl).db("raceRecords");
+const lapHistoryDB = new MongoClient(dbUrl).db("lapHistory");
 
 //user schema
 const UserSchema = new mongoose.Schema(
@@ -100,6 +101,18 @@ const RaceRecordSchema = new mongoose.Schema(
 
 //raceRecord model
 const RaceRecord = mongoose.model("RaceRecord", RaceRecordSchema);
+
+//lapHistory schema
+const lapHistorySchema = new mongoose.Schema(
+{
+    periodType: Number,
+    periodString: String,
+    periodDate: String,
+    recordArray: [String]
+});
+
+//lapHistory model
+const lapHistory = mongoose.model("LapHistory", lapHistorySchema);
 
 //  +++ DB CONNECTION +++
 
@@ -245,7 +258,7 @@ async function initializeRaceData()
         raceState: "standby",
         racers: [],
         noOfLaps: 1
-    }
+    };
 
     await Race.insertOne(initRace);
 }
@@ -306,8 +319,6 @@ async function addRacer(idFilter, raceInfo)
 //add race data to start a new race
 async function startRace(filter, data)
 {
-    //console.log(data);
-
     let finalRace =
     {
         $set:
@@ -335,6 +346,66 @@ async function addFinalizedRaceData(newRaceRecord)
     await RaceRecord.insertOne(newRaceRecord);
 }
 
+//  +++ LAP HISTORY METHODS +++
+
+//get Lap History
+
+async function getLapHistory() 
+{
+    return await lapHistory.find({});
+}
+
+async function initializeLapHistory()
+{
+    let initDate = new Date();
+    let initMonth = initDate.getMonth();
+
+    const month = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+
+    //initialize all time record
+    let initGlobalHistory = 
+    {
+        periodType: 0,
+        periodString: 'global',
+        periodDate: "N/A",
+        recordArray: []
+    };
+    await lapHistory.insertOne(initGlobalHistory);
+
+    //initialize annual record
+    let initAnnualHistory =
+    {
+        periodType: 1,
+        periodString: 'annual',
+        periodDate: initDate.getFullYear().toString(),
+        recordArray: []
+    };
+
+    await lapHistory.insertOne(initAnnualHistory);
+
+    //initialize monthly record
+    let initMonthlyHistory =
+    {
+        periodType: 2,
+        periodString: 'monthly',
+        periodDate: month[initMonth],
+        recordArray: []
+    };
+
+    await lapHistory.insertOne(initMonthlyHistory);
+
+    //initialize daily record
+    let initDailyHistory =
+    {
+        periodType: 3,
+        periodString: 'daily',
+        periodDate: initDate.getDate().toString(),
+        recordArray: []
+    };
+
+    await lapHistory.insertOne(initDailyHistory);
+}
+
 //method exports
 export default
 {
@@ -354,5 +425,8 @@ export default
     getRaceData,
     addRacer,
     startRace,
-    addFinalizedRaceData
+    addFinalizedRaceData,
+    getLapHistory,
+    initializeLapHistory,
+    getLapHistory
 }

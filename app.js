@@ -45,6 +45,7 @@ import vehicleDb from "./db.js";
 import maintenanceDb from "./db.js";
 import raceDb from "./db.js";
 import raceRecordDb from "./db.js";
+import lapHistoryDb from "./db.js";
 import { settings } from "node:cluster";
 import db from "./db.js";
 
@@ -264,12 +265,26 @@ app.get("/dashboard", async (req, res) =>
 {
     const vehicles = await vehicleDb.getAllVehicles();
 
+    //get race data, and if it does not exist, run initilization method
     let race = await raceDb.getRaceData();
 
     if(race == null || race == undefined)
     {
         await raceDb.initializeRaceData();
     }
+    
+    let curDate = new Date();
+
+    var lapHistory = await lapHistoryDb.getLapHistory();
+
+    if(lapHistory == null || lapHistory == undefined || lapHistory.length == 0)
+    {
+
+        await lapHistoryDb.initializeLapHistory();
+        lapHistory = await lapHistoryDb.getLapHistory();
+    }
+
+    //
 
     res.render("dashboard", 
     {

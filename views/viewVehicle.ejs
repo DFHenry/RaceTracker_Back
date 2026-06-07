@@ -51,9 +51,13 @@
         <!-- for each maintenance log -->
         <% logs.forEach(function(log){ %>
         <tr>
-            <td><%= log.dateStarted %></td>
+            <td><%= log.dateStarted.toDateString() %></td>
             <td><%= log.description %></td>
-            <td><%= log.dateFinished %></td>
+            <% if(!log.dateFinished) { %>
+                <td></td>
+            <% } else { %>
+                <td><%= log.dateFinished.toDateString() %></td>
+            <% } %>
             <td><%= log.repairedBy %></td>
         </tr>
         <% }); %>
