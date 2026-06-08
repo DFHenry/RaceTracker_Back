@@ -102,13 +102,15 @@ const RaceRecordSchema = new mongoose.Schema(
 //raceRecord model
 const RaceRecord = mongoose.model("RaceRecord", RaceRecordSchema);
 
+//  +++ LAP HISTORY DATA +++
+
 //lapHistory schema
 const lapHistorySchema = new mongoose.Schema(
 {
     periodType: Number,
     periodString: String,
     periodDate: String,
-    recordArray: [String]
+    recordArray: [lapRecord]
 });
 
 //lapHistory model
@@ -422,6 +424,22 @@ async function alterLapHistory(filter, data)
     await lapHistory.updateOne(filter, lapToUpdate);
 }
 
+async function updateLapHistory(filter, data)
+{
+    let lapToUpdate =
+    {
+        $set:
+        {
+            periodType: data.periodType,
+            periodString: data.periodString,
+            periodDate: data.periodDate,
+            recordArray: data.recordArray
+        },
+    };
+
+    await lapHistory.updateOne(filter, lapToUpdate);
+}
+
 //method exports
 export default
 {
@@ -445,5 +463,6 @@ export default
     getLapHistory,
     initializeLapHistory,
     getLapHistory,
-    alterLapHistory
+    alterLapHistory,
+    updateLapHistory
 }

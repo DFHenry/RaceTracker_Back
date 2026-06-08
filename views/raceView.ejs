@@ -55,9 +55,9 @@
         <tbody>
             <% race.racers.forEach(function(racer) { %>
             <tr>
-                <td><%= racer.racerName %></td>
-                <td><%= racer.vehicleNumber %></td>
-                <td><%= racer.vehicleRFID %></td>
+                <td><%- racer.racerName %></td>
+                <td><%- racer.vehicleNumber %></td>
+                <td><%- racer.vehicleRFID %></td>
                 <td><button>Remove Racer</button></td>
             </tr>
             <% }); %>
@@ -88,7 +88,7 @@
         let finishBtn = document.getElementById("finishBtn");
 
         //race data from the DB
-        var raceData = <%- JSON.stringify(race) %>;
+        const raceData = <%- JSON.stringify(race) %>;
 
         //timer variables
         let minutes = 0;
@@ -139,7 +139,7 @@
 
         //  +++ RACE INITIALIZATION +++
 
-        //console.log(raceData);
+        console.log(raceData.racers);
 
         //place records into the lapCounter and curLap arrays for each racer
         for(let i = 0; i < raceData.racers.length; i++)
@@ -167,12 +167,13 @@
             let dataArray = temp.split(",");
 
             //if the first string in dataArray is "detectedRFID", being lap and pole position updates
-            if(dataArray[0] === "detectedRFID")
+            if(dataArray[0] == "detectedRFID")
             {
+                console.log(raceData.racers);
                 //lap information
                 for(let x = 0; x < raceData.racers.length; x++)
                 {
-                    if(raceData.racers[x].vehicleRFID === dataArray[1] && lapCounter[x] < raceData.noOfLaps)
+                    if(raceData.racers[x].vehicleRFID == dataArray[1] && lapCounter[x] < raceData.noOfLaps)
                     {
                         //update lap information
                         console.log("Valid Tag Detected: " + dataArray[1]);
@@ -342,7 +343,7 @@
 
             for(let i = 0; i < raceData.racers.length; i++)
             {
-                if(raceData.racers[i].vehicleNumber = racerRecord.vehicleNumber)
+                if(raceData.racers[i].vehicleNumber == racerRecord.vehicleNumber)
                 {
                     let tempLapCount = "";
                     let tempLapSec = "";

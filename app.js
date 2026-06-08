@@ -21,7 +21,7 @@ var rfid1 = new SerialPort(
 //global variables for RFID reader
 var fullMessage = "";
 var newRFID = "";
-var curRFID = "";
+// var curRFID = "";
 
 //global variables for race creation
 let Racer =
@@ -147,7 +147,7 @@ wss.on("connection", (ws, req) =>
                 let secondsLog = checkData[2];
                 let dSecondsLog = checkData[3];
 
-                ws.send("detectedRFID," + newRFID + "," + minutesLog + "," + secondsLog + "," + dSecondsLog + ",");
+                await ws.send("detectedRFID," + newRFID + "," + minutesLog + "," + secondsLog + "," + dSecondsLog + ",");
 
                 newRFID = "";
                 dataArray.length = 0;
@@ -602,8 +602,61 @@ app.post("/finishRace/submit", async (req, res) =>
         racers: newRaceRecord.racers
     };
 
-    //add record to the raceRecords collection
+    //add record to the raceRecords collection and update lap histories
     await raceRecordDb.addFinalizedRaceData(addedRaceRecord);
+
+    //get lap history from the DB
+    let lapHistory = await lapHistoryDb.getLapHistory();
+
+    //check lap records for daily, monthly, annual, and global best times
+    for(let i = 0; i < newRaceRecord.lapRecords.length; i++)
+    {
+        //loop though each lap history document (Daily, Monthly, Annually, and Global)
+        for(let x = 0; x < lapHistory.length; x++)
+        {
+            //check global lap history
+            if(lapHistory[x].periodString == "global")
+            {
+                if(lapHistory[x].recordArray.length > 0)
+                {
+                    for(let y = 0; y < lapHistory[x].recordArray.length; y++)
+                    {
+                        if(newRaceRecord.lapRecords[i].lapTime < lapHistory[x].recordArray[y].lapTime)
+                        {
+                            let idFilter = lapHistory[x]._id;
+
+                            let newArray = lapHistory[x].recordArray;
+                            newArray.push(newRaceRecord.lapRecords[i]);
+
+                            newArray.sort();
+
+                            if(newArray.length < 5)
+                            {
+                                newArray.splice(-1);
+                            }
+
+                            let globalHistoryUpdate = 
+                            {
+                                periodType: lapHistory[x].periodType,
+                                periodString: lapHistory[x].periodString,
+                                periodDate: lapHistory[x].periodDate,
+                                recordArray: newArray
+                            };
+
+                            await lapHistoryDb.updateLapHistory(idFilter, globalHistoryUpdate);
+
+                            console.log("New Global Record: " + newRaceRecord.lapRecords[i].lapTime);
+
+                        }
+                    }
+                }
+                else
+                {
+                    console.log("New Global Record: " + newRaceRecord.lapRecords[i].lapTime);
+                }
+            }
+        }
+    }
 
     //load raceFinish.ejs and pass data to it
     res.render("raceFinish",
