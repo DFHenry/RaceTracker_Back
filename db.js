@@ -406,6 +406,22 @@ async function initializeLapHistory()
     await lapHistory.insertOne(initDailyHistory);
 }
 
+async function alterLapHistory(filter, data)
+{
+    let lapToUpdate =
+    {
+        $set:
+        {
+            periodType: data.periodType,
+            periodString: data.periodString,
+            periodDate: data.periodDate,
+            recordArray: data.recordArray
+        },
+    };
+
+    await lapHistory.updateOne(filter, lapToUpdate);
+}
+
 //method exports
 export default
 {
@@ -428,5 +444,6 @@ export default
     addFinalizedRaceData,
     getLapHistory,
     initializeLapHistory,
-    getLapHistory
+    getLapHistory,
+    alterLapHistory
 }

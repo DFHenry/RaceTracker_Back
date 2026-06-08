@@ -273,7 +273,9 @@ app.get("/dashboard", async (req, res) =>
         await raceDb.initializeRaceData();
     }
     
+    //get lap history, and if it does not exist, run initilization method
     let curDate = new Date();
+    let historyReset = false;
 
     var lapHistory = await lapHistoryDb.getLapHistory();
 
@@ -284,11 +286,103 @@ app.get("/dashboard", async (req, res) =>
         lapHistory = await lapHistoryDb.getLapHistory();
     }
 
-    //
+    //alter lap history for current day, month, and/or year
+    for(let i = 0; i < lapHistory.length; i++)
+    {
+        //alter today's lap history
+        if(lapHistory[i].periodString == "daily")
+        {
+            //alter daily lap history for todays date
+            if(lapHistory[i].periodDate != curDate.getDate())
+            {
+                console.log("Updating daily log for today");
+
+                let idFilter = {_id: new ObjectId(String(lapHistory[i]._id)) };
+
+                let newDailyLog =
+                {
+                    periodType: 3,
+                    periodString: 'daily',
+                    periodDate: curDate.getDate().toString(),
+                    recordArray: []
+                }
+
+                await lapHistoryDb.alterLapHistory(idFilter, newDailyLog);
+                historyReset = true;
+            }
+            else
+            {
+                console.log("Daily Log is current.")
+            }
+        }
+
+        //alter this month's lap history
+        if(lapHistory[i].periodString == "monthly")
+        {
+            const month = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+
+            //alter daily lap history for todays date
+            if(lapHistory[i].periodDate != month[curDate.getMonth()])
+            {
+                console.log("Updating monthly log for current month");
+
+                let idFilter = {_id: new ObjectId(String(lapHistory[i]._id)) };
+
+                let newMonthlyLog =
+                {
+                    periodType: 2,
+                    periodString: 'monthly',
+                    periodDate: month[curDate.getMonth()],
+                    recordArray: []
+                }
+
+                await lapHistoryDb.alterLapHistory(idFilter, newMonthlyLog);
+                historyReset = true;
+            }
+            else
+            {
+                console.log("Monthly Log is current.")
+            }
+        }
+        
+        //alter this year's lap history
+        if(lapHistory[i].periodString == "annual")
+        {
+
+            //alter daily lap history for todays date
+            if(lapHistory[i].periodDate != curDate.getFullYear())
+            {
+                console.log("Updating annual log for current year");
+
+                let idFilter = {_id: new ObjectId(String(lapHistory[i]._id)) };
+
+                let newAnnualLog =
+                {
+                    periodType: 1,
+                    periodString: 'annual',
+                    periodDate: month[curDate.getFullYear()],
+                    recordArray: []
+                }
+
+                await lapHistoryDb.alterLapHistory(idFilter, newMonthlyLog);
+                historyReset = true;
+            }
+            else
+            {
+                console.log("Annual Log is current.");
+            }
+        }
+
+        if(historyReset == true)
+        {
+            lapHistory = await lapHistoryDb.getLapHistory();
+        }
+    }
 
     res.render("dashboard", 
     {
-        vehicles: vehicles
+        vehicles: vehicles,
+        lapHistory: lapHistory
     });
 });
 
