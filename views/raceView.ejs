@@ -122,7 +122,8 @@
             lapTime: String,
             singleLapTime: String,
             lapNumber: Number,
-            polePosition: String
+            polePosition: String,
+            dateMade: String
         }
 
         //lap counter for each car
@@ -240,7 +241,7 @@
             {
                 seconds += 1;
                 count = 0;
-                for(let i = 0; i < curLapCount; i++)
+                for(let i = 0; i < raceData.racers.length; i++)
                 {
                     curLapSec[i] += 1;
                     curLapCount[i] = 0;
@@ -250,7 +251,7 @@
             {
                 minutes += 1;
                 seconds = 0;
-                for(let i = 0; i < curLapCount; i++)
+                for(let i = 0; i < raceData.racers.length; i++)
                 {
                     curLapMin[i] += 1;
                     curLapSec[i] = 0;
@@ -335,11 +336,14 @@
             }
 
             var newLap = Object.create(lap);
+            var newDate = new Date();
             
             newLap.racerName = racerRecord.racerName;
             newLap.raceVehicle = racerRecord.vehicleNumber;
             newLap.vehicleRFID = dataArray[1];
             newLap.lapTime = dataArray[2] + ":" + dataArray[3] + ":" + dataArray[4];
+            newLap.dateMade = newDate.getFullYear().toString() + "-" + newDate.getMonth().toString() + "-" + newDate.getDate().toString();
+            
 
             for(let i = 0; i < raceData.racers.length; i++)
             {
@@ -348,6 +352,10 @@
                     let tempLapCount = "";
                     let tempLapSec = "";
                     let tempLapMin = "";
+
+                    console.log(curLapMin[i]);
+                    console.log(curLapSec[i]);
+                    console.log(curLapCount[i]);
 
                     if(curLapCount[i] < 10)
                     {
@@ -364,17 +372,21 @@
                     }
                     else
                     {
-                        tempLapSec = curLapSec.toString();
+                        tempLapSec = curLapSec[i].toString();
                     }
 
                     if(curLapMin[i] < 10)
                     {
-                        tempLapMin = "0" + curLapMin.toString();
+                        tempLapMin = "0" + curLapMin[i].toString();
                     }
                     else
                     {
-                        tempLapMin = curLapMin.toString();
+                        tempLapMin = curLapMin[i].toString();
                     }
+
+                    console.log("newest lap minutes: " + tempLapMin);
+                    console.log("newest lap seconds: " + tempLapSec);
+                    console.log("newest lap count: " + tempLapCount);
 
                     newLap.singleLapTime = tempLapMin + ":" + tempLapSec + ":" + tempLapCount;
 
