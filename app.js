@@ -386,6 +386,7 @@ app.get("/dashboard", async (req, res) =>
     });
 });
 
+//start a new race from the dashboard
 app.get("/raceRegistration", async (req, res) =>
 {
     var curRace = await raceDb.getRaceData();
@@ -399,6 +400,14 @@ app.get("/raceRegistration", async (req, res) =>
     await db.startRace(idFilter, curRace);
 
     res.render("raceReg");
+});
+
+//view lap histories of a particular type (global, annual, etc.)
+app.post("/viewHistory/submit", async (req, res) => 
+{
+    let historyView = await lapHistoryDb.getOneLapHistory(req.body.historyType);
+
+    res.render("lapHistory", {history: historyView});
 });
 
 //  +++ VEHICLE CRUD FUNCITONS +++
@@ -912,6 +921,11 @@ app.post("/finishRace/dashboard/submit", async (req, res) =>
         }
     }
 
+    res.redirect("/dashboard");
+});
+
+app.post("/lapHistory/dashboard/submit", async (req, res) =>
+{
     res.redirect("/dashboard");
 });
 

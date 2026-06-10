@@ -355,7 +355,16 @@ async function addFinalizedRaceData(newRaceRecord)
 
 async function getLapHistory() 
 {
-    return await lapHistory.find({});
+    return await lapHistory.find(
+    {});
+}
+
+async function getOneLapHistory(data)
+{
+    return await lapHistory.findOne(
+    {
+        periodString: data
+    });
 }
 
 async function initializeLapHistory()
@@ -464,6 +473,7 @@ export default
     getLapHistory,
     initializeLapHistory,
     getLapHistory,
+    getOneLapHistory,
     alterLapHistory,
     updateLapHistory
 }

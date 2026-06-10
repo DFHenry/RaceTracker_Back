@@ -54,12 +54,7 @@
             <th></th>
         </thead>
         <tbody id="lapHistoryTable">
-            <!-- <tr>
-                <th>All Time</th>
-                <td>00:00:00</td>
-                <td>May 12, 12:43PM</td>
-                <td><button class="btn btn-success">View Previous records</button></td>
-            </tr> -->
+
         </tbody>
     </table>
 
@@ -72,17 +67,32 @@
 <script>
     let curLapHistory = <%- JSON.stringify(lapHistory) %>;
 
+    console.log(curLapHistory.length);
+
     let lapHistoryTable = document.getElementById("lapHistoryTable");
 
     for(let i = 0; i < curLapHistory.length; i++)
     {
-        tempLapRecord = curLapHistory[i].recordArray[0];
+        var tempLapRecord;
+        var tempDateMade;
+
+        if(curLapHistory[i].recordArray == 0)
+        {
+            tempLapRecord = "No Records Exist";
+            tempDateMade = " ";
+        }
+        else
+        {
+            tempLapRecord = curLapHistory[i].recordArray[0].singleLapTime;
+            tempDateMade = curLapHistory[i].recordArray[0].dateMade;
+        }
+
         //console.log(i);
 
-        lapHistoryTable.innerHTML += "<tr><th>" + curLapHistory[i].periodString + "</th><td>" + tempLapRecord.singleLapTime + "</td><td>" + tempLapRecord.dateMade + "</td><td><button class=\"btn btn-success\">View Previous records</button></td></tr>";
+        lapHistoryTable.innerHTML += "<tr><th>" + curLapHistory[i].periodString + "</th><td>" + tempLapRecord + "</td><td>" + tempDateMade + "</td><td><form action=\"/viewHistory/submit\" method=\"post\"><input type=\"hidden\" name=\"historyType\" value=\"" + curLapHistory[i].periodString + "\"><button class=\"btn btn-success\">View Previous records</button></form></td></tr>";
     }
 
-    // console.log(curLapHistory);
+    //console.log(curLapHistory);
 </script>
 </body>
 </html>
