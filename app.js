@@ -617,234 +617,175 @@ app.post("/finishRace/submit", async (req, res) =>
     //get lap history from the DB
     let lapHistory = await lapHistoryDb.getLapHistory();
 
-    //console.log(lapHistory[0].periodString);
-
     //check lap records for daily, monthly, annual, and global best times
-    for(let i = 0; i < newRaceRecord.lapRecords.length; i++)
+    for(let i = 0; i < addedRaceRecord.lapRecords.length; i++)
     {
-        //loop though each lap history document (Daily, Monthly, Annually, and Global)
-        for(let x = 0; x < lapHistory.length; x++)
+        if(lapHistory[i].periodString == "global")
         {
-            //check global lap history
-            if(lapHistory[x].periodString == "global")
+            //object for filterId for updating the global lap records
+            let filterId = {_id: new ObjectId(String(lapHistory[i]._id)) };
+
+            //array for new lap history
+            var lapArray = [];
+
+            //if the lapHistory[x].recordArray isn't empty...
+            if(lapHistory[i].recordArray > 0)
             {
-                if(lapHistory[x].recordArray.length > 0)
+                //loop tough the record Array
+                for(let y = 0; y < lapHistory[x].recordArray.length; y++)
                 {
-                    for(let y = 0; y < lapHistory[x].recordArray.length; y++)
-                    {
-                        if(newRaceRecord.lapRecords[i].lapTime < lapHistory[x].recordArray[y].lapTime)
-                        {
-                            let idFilter = {_id: new ObjectId(String(lapHistory[x]._id)) };
-
-                            let newArray = lapHistory[x].recordArray;
-                            newArray.push(newRaceRecord.lapRecords[i]);
-
-                            newArray.sort();
-
-                            if(newArray.length < 5)
-                            {
-                                newArray.splice(-1);
-                            }
-
-                            let globalHistoryUpdate = 
-                            {
-                                periodType: lapHistory[x].periodType,
-                                periodString: lapHistory[x].periodString,
-                                periodDate: lapHistory[x].periodDate,
-                                recordArray: newArray
-                            };
-
-                            await lapHistoryDb.updateLapHistory(idFilter, globalHistoryUpdate);
-
-                            //console.log("New Global Record: " + newRaceRecord.lapRecords[i].lapTime);
-                        }
-                    }
-                }
-                else
-                {
-                    let idFilter = {_id: new ObjectId(String(lapHistory[x]._id)) };
-
-                    let newArray = [];
-                    newArray.push(newRaceRecord.lapRecords[i]);
-
-                    let globalHistoryUpdate = 
-                    {
-                        periodType: lapHistory[x].periodType,
-                        periodString: lapHistory[x].periodString,
-                        periodDate: lapHistory[x].periodDate,
-                        recordArray: newArray
-                    };
-
-                    await lapHistoryDb.updateLapHistory(idFilter, globalHistoryUpdate);
-
-                    //console.log("New Global Record: " + newRaceRecord.lapRecords[i].lapTime);
+                    //add the lapHistory to the lapArray
+                    lapArray.push(lapHistory[x].recordArray[y]);
                 }
             }
 
-            if(lapHistory[x].periodString == "annual")
+            //loop through the addedLapHistory.lapRecords array and add the laps to the lapArray
+            for(let y = 0; y < addedRaceRecord.lapRecords.length; y++)
             {
-                if(lapHistory[x].recordArray.length > 0)
+                lapArray.push(addedRaceRecord.lapRecords[y]);
+            }
+
+            //sort the array
+            lapArray.sort();
+
+            //shorten the array to 5 entries
+            lapArray.length = 5;
+            
+            let newHistory =
+            {
+                periodType: lapHistory[i].periodType,
+                periodString: lapHistory[i].periodString,
+                periodDate: lapHistory[i].periodDate,
+                recordArray: lapArray
+            };
+
+            await lapHistoryDb.updateLapHistory(filterId, newHistory)
+        }
+
+        if(lapHistory[i].periodString == "annual")
+        {
+            //object for filterId for updating the annual lap records
+            let filterId = {_id: new ObjectId(String(lapHistory[i]._id)) };
+
+            //array for new lap history
+            var lapArray = [];
+
+            //if the lapHistory[x].recordArray isn't empty...
+            if(lapHistory[i].recordArray > 0)
+            {
+                //loop tough the record Array
+                for(let y = 0; y < lapHistory[x].recordArray.length; y++)
                 {
-                    for(let y = 0; y < lapHistory[x].recordArray.length; y++)
-                    {
-                        if(newRaceRecord.lapRecords[i].lapTime < lapHistory[x].recordArray[y].lapTime)
-                        {
-                            let idFilter = {_id: new ObjectId(String(lapHistory[x]._id)) };
-
-                            let newArray = lapHistory[x].recordArray;
-                            newArray.push(newRaceRecord.lapRecords[i]);
-
-                            newArray.sort();
-
-                            if(newArray.length < 5)
-                            {
-                                newArray.splice(-1);
-                            }
-
-                            let globalHistoryUpdate = 
-                            {
-                                periodType: lapHistory[x].periodType,
-                                periodString: lapHistory[x].periodString,
-                                periodDate: lapHistory[x].periodDate,
-                                recordArray: newArray
-                            };
-
-                            await lapHistoryDb.updateLapHistory(idFilter, globalHistoryUpdate);
-
-                            //console.log("New Global Record: " + newRaceRecord.lapRecords[i].lapTime);
-                        }
-                    }
-                }
-                else
-                {
-                    let idFilter = {_id: new ObjectId(String(lapHistory[x]._id)) };
-
-                    let newArray = [];
-                    newArray.push(newRaceRecord.lapRecords[i]);
-
-                    let globalHistoryUpdate = 
-                    {
-                        periodType: lapHistory[x].periodType,
-                        periodString: lapHistory[x].periodString,
-                        periodDate: lapHistory[x].periodDate,
-                        recordArray: newArray
-                    };
-
-                    await lapHistoryDb.updateLapHistory(idFilter, globalHistoryUpdate);
-
-                    //console.log("New Global Record: " + newRaceRecord.lapRecords[i].lapTime);
+                    //add the lapHistory to the lapArray
+                    lapArray.push(lapHistory[x].recordArray[y]);
                 }
             }
 
-            if(lapHistory[x].periodString == "monthly")
+            //loop through the addedLapHistory.lapRecords array and add the laps to the lapArray
+            for(let y = 0; y < addedRaceRecord.lapRecords.length; y++)
             {
-                if(lapHistory[x].recordArray.length > 0)
+                lapArray.push(addedRaceRecord.lapRecords[y]);
+            }
+
+            //sort the array
+            lapArray.sort();
+
+            //shorten the array to 5 entries
+            lapArray.length = 5;
+            
+            let newHistory =
+            {
+                periodType: lapHistory[i].periodType,
+                periodString: lapHistory[i].periodString,
+                periodDate: lapHistory[i].periodDate,
+                recordArray: lapArray
+            };
+
+            await lapHistoryDb.updateLapHistory(filterId, newHistory)
+        }
+
+        if(lapHistory[i].periodString == "monthly")
+        {
+            //object for filterId for updating the monthly lap records
+            let filterId = {_id: new ObjectId(String(lapHistory[i]._id)) };
+
+            //array for new lap history
+            var lapArray = [];
+
+            //if the lapHistory[x].recordArray isn't empty...
+            if(lapHistory[i].recordArray > 0)
+            {
+                //loop tough the record Array
+                for(let y = 0; y < lapHistory[x].recordArray.length; y++)
                 {
-                    for(let y = 0; y < lapHistory[x].recordArray.length; y++)
-                    {
-                        if(newRaceRecord.lapRecords[i].lapTime < lapHistory[x].recordArray[y].lapTime)
-                        {
-                            let idFilter = {_id: new ObjectId(String(lapHistory[x]._id)) };
-
-                            let newArray = lapHistory[x].recordArray;
-                            newArray.push(newRaceRecord.lapRecords[i]);
-
-                            newArray.sort();
-
-                            if(newArray.length < 5)
-                            {
-                                newArray.splice(-1);
-                            }
-
-                            let globalHistoryUpdate = 
-                            {
-                                periodType: lapHistory[x].periodType,
-                                periodString: lapHistory[x].periodString,
-                                periodDate: lapHistory[x].periodDate,
-                                recordArray: newArray
-                            };
-
-                            await lapHistoryDb.updateLapHistory(idFilter, globalHistoryUpdate);
-
-                            //console.log("New Global Record: " + newRaceRecord.lapRecords[i].lapTime);
-                        }
-                    }
-                }
-                else
-                {
-                    let idFilter = {_id: new ObjectId(String(lapHistory[x]._id)) };
-
-                    let newArray = [];
-                    newArray.push(newRaceRecord.lapRecords[i]);
-
-                    let globalHistoryUpdate = 
-                    {
-                        periodType: lapHistory[x].periodType,
-                        periodString: lapHistory[x].periodString,
-                        periodDate: lapHistory[x].periodDate,
-                        recordArray: newArray
-                    };
-
-                    await lapHistoryDb.updateLapHistory(idFilter, globalHistoryUpdate);
-
-                    //console.log("New Global Record: " + newRaceRecord.lapRecords[i].lapTime);
+                    //add the lapHistory to the lapArray
+                    lapArray.push(lapHistory[x].recordArray[y]);
                 }
             }
 
-            if(lapHistory[x].periodString == "daily")
+            //loop through the addedLapHistory.lapRecords array and add the laps to the lapArray
+            for(let y = 0; y < addedRaceRecord.lapRecords.length; y++)
             {
-                if(lapHistory[x].recordArray.length > 0)
+                lapArray.push(addedRaceRecord.lapRecords[y]);
+            }
+
+            //sort the array
+            lapArray.sort();
+
+            //shorten the array to 5 entries
+            lapArray.length = 5;
+            
+            let newHistory =
+            {
+                periodType: lapHistory[i].periodType,
+                periodString: lapHistory[i].periodString,
+                periodDate: lapHistory[i].periodDate,
+                recordArray: lapArray
+            };
+
+            await lapHistoryDb.updateLapHistory(filterId, newHistory)
+        }
+
+        if(lapHistory[i].periodString == "daily")
+        {
+            //object for filterId for updating the daily lap records
+            let filterId = {_id: new ObjectId(String(lapHistory[i]._id)) };
+
+            //array for new lap history
+            var lapArray = [];
+
+            //if the lapHistory[x].recordArray isn't empty...
+            if(lapHistory[i].recordArray > 0)
+            {
+                //loop tough the record Array
+                for(let y = 0; y < lapHistory[x].recordArray.length; y++)
                 {
-                    for(let y = 0; y < lapHistory[x].recordArray.length; y++)
-                    {
-                        if(newRaceRecord.lapRecords[i].lapTime < lapHistory[x].recordArray[y].lapTime)
-                        {
-                            let idFilter = {_id: new ObjectId(String(lapHistory[x]._id)) };
-
-                            let newArray = lapHistory[x].recordArray;
-                            newArray.push(newRaceRecord.lapRecords[i]);
-
-                            newArray.sort();
-
-                            if(newArray.length < 5)
-                            {
-                                newArray.splice(-1);
-                            }
-
-                            let globalHistoryUpdate = 
-                            {
-                                periodType: lapHistory[x].periodType,
-                                periodString: lapHistory[x].periodString,
-                                periodDate: lapHistory[x].periodDate,
-                                recordArray: newArray
-                            };
-
-                            await lapHistoryDb.updateLapHistory(idFilter, globalHistoryUpdate);
-
-                            //console.log("New Global Record: " + newRaceRecord.lapRecords[i].lapTime);
-                        }
-                    }
-                }
-                else
-                {
-                    let idFilter = {_id: new ObjectId(String(lapHistory[x]._id)) };
-
-                    let newArray = [];
-                    newArray.push(newRaceRecord.lapRecords[i]);
-
-                    let globalHistoryUpdate = 
-                    {
-                        periodType: lapHistory[x].periodType,
-                        periodString: lapHistory[x].periodString,
-                        periodDate: lapHistory[x].periodDate,
-                        recordArray: newArray
-                    };
-
-                    await lapHistoryDb.updateLapHistory(idFilter, globalHistoryUpdate);
-
-                    //console.log("New Global Record: " + newRaceRecord.lapRecords[i].lapTime);
+                    //add the lapHistory to the lapArray
+                    lapArray.push(lapHistory[x].recordArray[y]);
                 }
             }
+
+            //loop through the addedLapHistory.lapRecords array and add the laps to the lapArray
+            for(let y = 0; y < addedRaceRecord.lapRecords.length; y++)
+            {
+                lapArray.push(addedRaceRecord.lapRecords[y]);
+            }
+
+            //sort the array
+            lapArray.sort();
+
+            //shorten the array to 5 entries
+            lapArray.length = 5;
+            
+            let newHistory =
+            {
+                periodType: lapHistory[i].periodType,
+                periodString: lapHistory[i].periodString,
+                periodDate: lapHistory[i].periodDate,
+                recordArray: lapArray
+            };
+
+            await lapHistoryDb.updateLapHistory(filterId, newHistory)
         }
     }
 

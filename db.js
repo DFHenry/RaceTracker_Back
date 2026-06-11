@@ -436,7 +436,7 @@ async function alterLapHistory(filter, data)
 
 async function updateLapHistory(filter, data)
 {
-    let lapToUpdate =
+    let newLapHistory =
     {
         $set:
         {
@@ -447,7 +447,7 @@ async function updateLapHistory(filter, data)
         },
     };
 
-    await lapHistory.updateOne(filter, lapToUpdate);
+    await lapHistory.updateOne(filter, newLapHistory);
 }
 
 //method exports
