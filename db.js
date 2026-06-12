@@ -355,8 +355,7 @@ async function addFinalizedRaceData(newRaceRecord)
 
 async function getLapHistory() 
 {
-    return await lapHistory.find(
-    {});
+    return await lapHistory.find({});
 }
 
 async function getOneLapHistory(data)
@@ -450,6 +449,11 @@ async function updateLapHistory(filter, data)
     await lapHistory.updateOne(filter, newLapHistory);
 }
 
+async function deleteOneLap(filter, data)
+{
+
+}
+
 //method exports
 export default
 {
@@ -472,8 +476,8 @@ export default
     addFinalizedRaceData,
     getLapHistory,
     initializeLapHistory,
-    getLapHistory,
     getOneLapHistory,
     alterLapHistory,
-    updateLapHistory
+    updateLapHistory,
+    deleteOneLap
 }

@@ -21,7 +21,9 @@
                 <th></th>
             </thead>
             <tbody id="tableBody">
-
+                <!-- <form action="/lapHistory/deleteLap/submit">
+                    <input type="hidden" name="" value="">
+                </form> -->
             </tbody>
         </table>
 
@@ -34,16 +36,26 @@
     <script>
         const lapHistory = <%- JSON.stringify(history) %>;
         
+        console.log(lapHistory);
+
         let tableBody = document.getElementById("tableBody");
         let recordNumber = 1;
 
         for(let i = 0; i < lapHistory.recordArray.length; i++)
         {
-            tableBody.innerHTML += "<tr><th>" + recordNumber.toString() + "</th><td>" + lapHistory.recordArray[i].singleLapTime + "</td><td>" + lapHistory.recordArray[i].dateMade.toString() + "</td><td>" + lapHistory.recordArray[i].racerName + "</td><td><button class=\"btn btn-danger\">Delete Record</button></td></tr>";
-            recordNumber++;
+            if(lapHistory.recordArray[i] != null)
+            {
+                tableBody.innerHTML += "<tr><th>" + recordNumber.toString() + 
+                "</th><td>" + lapHistory.recordArray[i].singleLapTime + 
+                "</td><td>" + lapHistory.recordArray[i].dateMade.toString() + 
+                "</td><td>" + lapHistory.recordArray[i].racerName + 
+                "</td><td><form action=\"/lapHistory/deleteLap/submit\">" + 
+                "<input type=\"hidden\" name=\"periodString\" value=\"" + lapHistory.periodString +"\">" +
+                "<input type=\"hidden\" name=\"id\" value=\"" + lapHistory.recordArray[i]._id + "\">" + 
+                "</form></td></tr>";
+                recordNumber++;
+            }
         }
-
-        console.log(lapHistory);
     </script>
 </body>
 </html>

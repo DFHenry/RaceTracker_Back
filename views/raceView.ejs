@@ -344,7 +344,6 @@
             newLap.lapTime = dataArray[2] + ":" + dataArray[3] + ":" + dataArray[4];
             newLap.dateMade = newDate.getFullYear().toString() + "-" + newDate.getMonth().toString() + "-" + newDate.getDate().toString();
             
-
             for(let i = 0; i < raceData.racers.length; i++)
             {
                 if(raceData.racers[i].vehicleNumber == racerRecord.vehicleNumber)
@@ -442,7 +441,9 @@
                     finalPositions: polePositions
                 };
 
-                var raceRecordData = JSON.stringify(newRaceRecord);
+                console.log(newRaceRecord);
+
+                var raceRecordData = await JSON.stringify(newRaceRecord);
                 finishValue.value = raceRecordData;
 
                 startBtn.style.display = "none";
