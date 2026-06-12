@@ -1,6 +1,7 @@
 import mongoose, { mongo } from "mongoose";
 import {MongoClient, ObjectId} from "mongodb";
 import { scryptSync } from "crypto";
+import { constants } from "buffer";
 
 //get uri from .env file
 const dbUrl = `mongodb+srv://${process.env.DBUSER}:${process.env.DBPWD}@${process.env.DBHOST}/${process.env.DB_NAME}`;
@@ -449,9 +450,38 @@ async function updateLapHistory(filter, data)
     await lapHistory.updateOne(filter, newLapHistory);
 }
 
-async function deleteOneLap(filter, data)
+//delete one lap from a lap history
+async function deleteOneLap(recordNumber, data)
 {
+    var filter = {_id: new ObjectId(String(data)) };
+    var history = await lapHistory.findOne(filter);
+    
+    let newFilter = {_id: new ObjectId(String(history._id)) };
+    console.log(newFilter);
 
+    for(let i = 0; i < history.recordArray.length; i++)
+    {
+        if(i == recordNumber)
+        {
+            console.log("Ping");
+            let index = history.recordArray.indexOf(i);
+            history.recordArray.splice(index, 1);
+            break;
+        }
+    }
+
+    let newHistory = 
+    {
+        $set:
+        {
+            periodType: history.periodType,
+            periodString: history.periodString,
+            periodDate: history.periodDate,
+            recordArray: history.recordArray
+        },
+    };
+
+    await lapHistory.updateOne(newFilter, newHistory);
 }
 
 //method exports

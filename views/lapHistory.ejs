@@ -49,10 +49,12 @@
                 "</th><td>" + lapHistory.recordArray[i].singleLapTime + 
                 "</td><td>" + lapHistory.recordArray[i].dateMade.toString() + 
                 "</td><td>" + lapHistory.recordArray[i].racerName + 
-                "</td><td><form action=\"/lapHistory/deleteLap/submit\">" + 
-                "<input type=\"hidden\" name=\"periodString\" value=\"" + lapHistory.periodString +"\">" +
-                "<input type=\"hidden\" name=\"id\" value=\"" + lapHistory.recordArray[i]._id + "\">" + 
-                "</form></td></tr>";
+                "</td><td><form action=\"/lapHistory/deleteLap/submit\" method=\"post\">" + 
+                "<input type=\"hidden\" name=\"_id\" value=\"" + lapHistory._id +"\">" +
+                "<input type=\"hidden\" name=\"recordNumber\" value=\"" + (recordNumber -1) + "\">" + 
+                "<button class=\"btn btn-warning\" type=\"submit\">Delete Lap Record</button>" +
+                "</td></tr>" + 
+                "</form>";
                 recordNumber++;
             }
         }

@@ -806,7 +806,13 @@ app.post("/finishRace/submit", async (req, res) =>
 
 app.post("/lapHistory/deleteLap/submit", async (req, res) =>
 {
+    let recordNumber = req.body.recordNumber;
 
+    let historyData = req.body._id;
+
+    await lapHistoryDb.deleteOneLap(recordNumber, historyData);
+
+    res.redirect("/dashboard");
 });
 
 app.post("/finishRace/newRace/submit", async (req, res) =>
