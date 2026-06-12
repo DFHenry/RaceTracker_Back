@@ -457,13 +457,11 @@ async function deleteOneLap(recordNumber, data)
     var history = await lapHistory.findOne(filter);
     
     let newFilter = {_id: new ObjectId(String(history._id)) };
-    console.log(newFilter);
 
     for(let i = 0; i < history.recordArray.length; i++)
     {
         if(i == recordNumber)
         {
-            console.log("Ping");
             let index = history.recordArray.indexOf(i);
             history.recordArray.splice(index, 1);
             break;
