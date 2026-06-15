@@ -9,6 +9,7 @@ import { SerialPort } from "serialport";
 import http from "http";
 import { createServer } from "http";
 import { WebSocketServer } from "ws";
+import cors from "cors";
 // import { setTimeout } from "node:timers/promises";
 
 //RFID Reader !!! Change the RFIDPORT variable in the .env to the name of whichever port your Arduino board is plugged into
@@ -170,7 +171,10 @@ app.set("view engine", "ejs");
 
 //use the public directory (for CSS, Images, Etc.)
 app.use(express.static(path.join(__dirname, "public")));
-app.use(express.urlencoded({extended:true}));
+app.use(express.urlencoded({extended:true}))
+
+//cors for api use
+app.use(cors({ origin: '*' }));
 
 //use JSON data
 app.use(express.json());
@@ -200,7 +204,8 @@ rfid1.on("data", async function(data)
 //get api data from MongoDB
 app.get("/api/sendApi", async (req, res) => 
 {
-    let users = await userDb.getUsers();
+    let raceData = await raceDb.getRaceData();
+    res.json(raceData);
 });
 
 //  +++ LOGIN +++
@@ -224,7 +229,7 @@ app.use(
 //index page, also the login page
 app.get("/", (req, res) =>
 {
-    console.log(req.session);
+    //console.log(req.session);
     res.render("index");
 });
 
@@ -234,12 +239,14 @@ app.post("/login/submit", async (req, res) =>
     let auth = await userDb.authenticateUser(req.body.username, req.body.password);
     if(auth)
     {
+        console.log("Ping");
         req.session.loggedIn = true;
         req.session.user = req.body.username;
         res.redirect("/dashboard");
     }
     else
     {
+        console.log("Nope");
         res.render("index");
     }
 });
@@ -252,16 +259,18 @@ app.get("/login/logout", (req, res) =>
 })
 
 //form to create a new user
-// app.post("/login/newUser", async (req, res) =>
-// {
-//     let newUser = 
-//     {
-//         username: req.body.username,
-//         password: req.body.password
-//     };
+app.post("/login/newUser", async (req, res) =>
+{
+    let newUser = 
+    {
+        username: req.body.username,
+        password: req.body.password
+    };
 
-//     await userDb.addUser(newUser);
-// });
+    await userDb.addUser(newUser);
+
+    res.redirect("/");
+});
 
 //  +++ DASHBOARD METHODS +++
 

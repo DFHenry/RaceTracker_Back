@@ -4,7 +4,8 @@ import { scryptSync } from "crypto";
 import { constants } from "buffer";
 
 //get uri from .env file
-const dbUrl = `mongodb+srv://${process.env.DBUSER}:${process.env.DBPWD}@${process.env.DBHOST}/${process.env.DB_NAME}`;
+//const dbUrl = `mongodb://${process.env.DBUSER}:${process.env.DBPWD}@${process.env.DBHOST}`;
+const dbUrl = `mongodb://${process.env.DBHOST}/${process.env.DB_NAME}`;
 
 //  +++ USER ACCOUNT DATA +++
 
