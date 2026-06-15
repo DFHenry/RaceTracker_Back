@@ -564,7 +564,7 @@ app.post("/raceRegistration/startRace/submit", async (req, res) =>
 
         let newRace =
         {
-            raceState: "running",
+            raceState: "starting",
             racers: curRace.racers,
             noOfLaps: parseInt(req.body.noOfLaps)
         };
