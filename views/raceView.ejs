@@ -400,14 +400,9 @@
 
             lapInfo.push(newLap);
 
-            // console.log(lapInfo);
-
-            //info for displaying laps is as follows: 
-            //      Racer Name, Vehicle Number, Race Time, Single Lap Record, Lap Number, Pole Position
-
             raceLaps.innerHTML += "<tr><td>" + racerRecord.racerName + "</td><td>" + racerRecord.vehicleNumber + "</td><td>" + dataArray[2] + ":" + dataArray[3] + ":" + dataArray[4] + "</td><td>" + newLap.singleLapTime + "</td><td>Lap " + lapRecord + "/" + raceData.noOfLaps + "</td><td>" + poleOrdinals[poleRecord] + "</td></tr>";
 
-            //console.log("Lap Made By Tag " + dataArray[1] + " at time index " + dataArray[2] + ":" + dataArray[3] + ":" + dataArray[4]);
+            ws.send("addNewLap" + "," + newLap.lapTime + "," + newLap.racerName + "," + newLap.lapNumber + "," + newLap.polePosition);
 
             checkEnd();
         }

@@ -86,6 +86,10 @@ wss.on("connection", (ws, req) =>
         {
             checkRFID(dataArray);
         }
+        else if(dataArray[0] == "addNewLap")
+        {
+            addNewLap(dataArray);
+        }
 
         async function sendRFID(data)
         {
@@ -149,11 +153,31 @@ wss.on("connection", (ws, req) =>
                 let secondsLog = checkData[2];
                 let dSecondsLog = checkData[3];
 
+                let currentRace = await raceDb.getRaceData();
+
                 await ws.send("detectedRFID," + newRFID + "," + minutesLog + "," + secondsLog + "," + dSecondsLog + ",");
 
                 newRFID = "";
                 dataArray.length = 0;
             }
+        }
+
+        async function addNewLap(dataArray)
+        {
+            let raceData = await raceDb.getRaceData();
+
+            let filterId = {_id: new ObjectId(String(raceData._id))}
+            let lapNo = parseInt(dataArray[3]);
+
+            let newLap = 
+            {
+                lapTime: dataArray[1],
+                lapRacer: dataArray[2],
+                lapNumber: lapNo,
+                polePosition: dataArray[4]
+            };
+
+            await raceDb.updateRaceData(filterId, newLap);
         }
     });
 
@@ -629,6 +653,7 @@ app.post("/stopRace/submit", async (req, res) =>
     curRace.raceState = "standby";
     curRace.racers.length = 0;
     curRace.noOfLaps = 1;
+    curRace.laps.length = 0;
 
     let idFilter = {_id: new ObjectId(String(curRace._id)) };
 
@@ -888,6 +913,7 @@ app.post("/finishRace/newRace/submit", async (req, res) =>
     curRace.raceState = "registration";
     curRace.racers.length = 0;
     curRace.noOfLaps = 1;
+    curRace.laps.length = 0;
 
     let idFilter = {_id: new ObjectId(String(curRace._id)) };
 
@@ -921,6 +947,7 @@ app.post("/finishRace/dashboard/submit", async (req, res) =>
     curRace.raceState = "standby";
     curRace.racers.length = 0;
     curRace.noOfLaps = 1;
+    curRace.laps.length = 0;
 
     console.log(curRace.raceState);
 

@@ -68,12 +68,25 @@ const RacerSchema = new mongoose.Schema(
 //racer model
 const Racer = mongoose.model("Racer", RacerSchema);
 
+//lap schema for current race
+const LapSchema = new mongoose.Schema(
+{
+    lapTime: String,
+    lapRacer: String,
+    lapNumber: Number,
+    polePosition: String
+});
+
+//lap model
+const Lap = mongoose.model("Lap", LapSchema);
+
 //race management schema
 const RaceSchema = new mongoose.Schema(
 {
     raceState: String,
     racers: [RacerSchema],
-    noOfLaps: Number
+    noOfLaps: Number,
+    laps: []
 });
 
 //race model
@@ -99,7 +112,8 @@ const RaceRecordSchema = new mongoose.Schema(
     finaPositions: [String],
     lapRecords: [lapRecord],
     noOfLaps: Number,
-    racers: []
+    racers: [],
+    laps: []
 });
 
 //raceRecord model
@@ -262,7 +276,8 @@ async function initializeRaceData()
     {
         raceState: "standby",
         racers: [],
-        noOfLaps: 1
+        noOfLaps: 1,
+        laps: []
     };
 
     await Race.insertOne(initRace);
@@ -314,7 +329,8 @@ async function addRacer(idFilter, raceInfo)
         {
             raceState: "registration",
             racers: raceInfo.racers,
-            noOfLaps: raceInfo.noOfLaps
+            noOfLaps: raceInfo.noOfLaps,
+            laps: raceInfo.laps
         },
     };
 
@@ -330,11 +346,32 @@ async function startRace(filter, data)
         {
             raceState: data.raceState,
             racers: data.racers,
-            noOfLaps: data.noOfLaps
+            noOfLaps: data.noOfLaps,
+            laps: data.laps
         },
     };
 
     await Race.updateOne(filter, finalRace);
+}
+
+async function updateRaceData(filter, data)
+{
+    var raceData = await Race.findOne({});
+
+    raceData.laps.push(data);
+
+    let updatedRace = 
+    {
+        $set:
+        {
+            raceState: raceData.raceState,
+            racers:raceData.racers,
+            noOfLaps: raceData.noOfLaps,
+            laps: raceData.laps
+        }
+    }
+
+    await Race.updateOne(filter, updatedRace);
 }
 
 async function addFinalizedRaceData(newRaceRecord)
@@ -502,6 +539,7 @@ export default
     getRaceData,
     addRacer,
     startRace,
+    updateRaceData,
     addFinalizedRaceData,
     getLapHistory,
     initializeLapHistory,
