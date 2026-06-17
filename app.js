@@ -22,7 +22,6 @@ var rfid1 = new SerialPort(
 //global variables for RFID reader
 var fullMessage = "";
 var newRFID = "";
-// var curRFID = "";
 
 //global object for racer creation
 let Racer =
@@ -40,6 +39,9 @@ let Race =
     racers: [Racer],
     noOfLaps: Number
 };
+
+//websocket specific global variables
+let raceIsRunning = false;
 
 //import mongodb collections
 import userDb from "./db.js";
@@ -77,6 +79,11 @@ wss.on("connection", (ws, req) =>
             addRacer(dataArray);
         }
 
+        else if(dataArray[0] == "startCountdown")
+        {
+            runTheRace();
+        }
+
         else if(dataArray[0] == "findRFID")
         {
             sendRFID(dataArray);
@@ -86,6 +93,7 @@ wss.on("connection", (ws, req) =>
         {
             checkRFID(dataArray);
         }
+
         else if(dataArray[0] == "addNewLap")
         {
             addNewLap(dataArray);
@@ -178,6 +186,27 @@ wss.on("connection", (ws, req) =>
             };
 
             await raceDb.updateRaceData(filterId, newLap);
+        }
+
+        async function runTheRace() 
+        {
+            if(raceIsRunning == false)
+            {
+                let curRace = await raceDb.getRaceData();
+
+                let filterId = {_id: new ObjectId(String(curRace._id)) };
+
+                let raceUpdate = 
+                {
+                    raceState: "running",
+                    racers: curRace.racers,
+                    noOfLaps: curRace.noOfLaps,
+                    laps: curRace.laps
+                };
+
+                await raceDb.runRace(filterId, raceUpdate);
+                runTheRace = true;
+            }
         }
     });
 

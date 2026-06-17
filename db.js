@@ -354,6 +354,22 @@ async function startRace(filter, data)
     await Race.updateOne(filter, finalRace);
 }
 
+async function runRace(filter, data)
+{
+    let updatedRace = 
+    {
+        $set:
+        {
+            raceState: data.raceState,
+            racers: data.racers,
+            noOfLaps: data.noOfLaps,
+            laps: data.laps
+        }
+    }
+
+    await Race.updateOne(filter, updatedRace);
+}
+
 async function updateRaceData(filter, data)
 {
     var raceData = await Race.findOne({});
@@ -539,6 +555,7 @@ export default
     getRaceData,
     addRacer,
     startRace,
+    runRace,
     updateRaceData,
     addFinalizedRaceData,
     getLapHistory,
