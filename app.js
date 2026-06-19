@@ -98,6 +98,10 @@ wss.on("connection", (ws, req) =>
         {
             addNewLap(dataArray);
         }
+        // else if(dataArray[0] == "finishRace")
+        // {
+        //     finishRace(dataArray);
+        // }
 
         async function sendRFID(data)
         {
@@ -208,6 +212,23 @@ wss.on("connection", (ws, req) =>
                 runTheRace = true;
             }
         }
+
+        // async function finishRace()
+        // {
+        //     let curRace = await raceDb.getRaceData();
+
+        //     let filterId = {_id: new ObjectId(String(curRace._id)) };
+
+        //     let raceUpdate = 
+        //     {
+        //         raceState: "finishing",
+        //         racers: curRace.racers,
+        //         noOfLaps: curRace.noOfLaps,
+        //         laps: curRace.laps
+        //     };
+
+        //     await raceDb.finishRace(filterId, raceUpdate);
+        // }
     });
 
     //when a client disconnects from the server
@@ -712,6 +733,21 @@ app.post("/finishRace/submit", async (req, res) =>
 {
     if(req.session.loggedIn)
     {
+        //update the current race's raceState
+        var curRace = await raceDb.getRaceData();
+
+        let idFilter = {_id: new ObjectId(String(curRace._id)) };
+
+        let finalizeRace = 
+        {
+            raceState: "finishing",
+            racers: curRace.racers,
+            noOfLaps: curRace.noOfLaps,
+            laps: curRace.laps
+        };
+
+        await raceDb.finishRace(idFilter, finalizeRace);
+
         //finalized race data parsed into json
         const newRaceRecord = JSON.parse(req.body.finishValue);
 

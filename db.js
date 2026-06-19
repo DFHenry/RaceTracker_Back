@@ -404,6 +404,24 @@ async function addFinalizedRaceData(newRaceRecord)
     await RaceRecord.insertOne(newRaceRecord);
 }
 
+async function finishRace(filter, data)
+{
+    var raceData = await Race.findOne({});
+
+    let updatedRace = 
+    {
+        $set:
+        {
+            raceState: "finishing",
+            racers:raceData.racers,
+            noOfLaps: raceData.noOfLaps,
+            laps: raceData.laps
+        }
+    }
+
+    await Race.updateOne(filter, updatedRace);
+}
+
 //  +++ LAP HISTORY METHODS +++
 
 //get Lap History
@@ -558,6 +576,7 @@ export default
     runRace,
     updateRaceData,
     addFinalizedRaceData,
+    finishRace,
     getLapHistory,
     initializeLapHistory,
     getOneLapHistory,
