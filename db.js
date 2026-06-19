@@ -554,6 +554,14 @@ async function deleteOneLap(recordNumber, data)
     await lapHistory.updateOne(newFilter, newHistory);
 }
 
+//  +++ RACE HISTORY METHODS +++
+
+//get latest race history record
+async function getRaceHistory()
+{
+    return await RaceRecord.find().sort({"raceDateTime": -1}).limit(1);
+}
+
 //method exports
 export default
 {

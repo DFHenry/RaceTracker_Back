@@ -212,23 +212,6 @@ wss.on("connection", (ws, req) =>
                 runTheRace = true;
             }
         }
-
-        // async function finishRace()
-        // {
-        //     let curRace = await raceDb.getRaceData();
-
-        //     let filterId = {_id: new ObjectId(String(curRace._id)) };
-
-        //     let raceUpdate = 
-        //     {
-        //         raceState: "finishing",
-        //         racers: curRace.racers,
-        //         noOfLaps: curRace.noOfLaps,
-        //         laps: curRace.laps
-        //     };
-
-        //     await raceDb.finishRace(filterId, raceUpdate);
-        // }
     });
 
     //when a client disconnects from the server
@@ -275,12 +258,19 @@ rfid1.on("data", async function(data)
 
 //  +++ API INFO +++
 
-//get api data from MongoDB
-app.get("/api/sendApi", async (req, res) => 
+//get the current race data from MongoDB
+app.get("/api/sendApi/raceData", async (req, res) => 
 {
     let raceData = await raceDb.getRaceData();
     res.json(raceData);
 });
+
+//get the latest race history from MongoDB
+app.get("/api/sendApi/raceHistory", async (req, res) =>
+{
+    let raceHistory = await raceDb.getRaceHistory();
+    res.json(raceHistory);
+})
 
 //  +++ LOGIN +++
 
