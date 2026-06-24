@@ -33,29 +33,38 @@
     </form>
 </div>
     <script>
+
+        //place json data into a variable
         var newRaceRecord = <%- JSON.stringify(raceRecord) %>;
 
-        console.log(newRaceRecord);
-
+        //get the poleTableBody element
         var poleTableBody = document.getElementById("poleTableBody");
 
+        //define pole ordinals and lap time
         const poleOrdinals = ["0th", "1st", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th"];
         var lapTime = ""
  
+        //loop though the final positions of the newRaceRecord
         for(let i = 0; i < newRaceRecord.finalPositions.length; i++)
         {
+            //loop though each racer
             for(let x = 0; x < newRaceRecord.racers.length; x++)
             {
+                //if the final positions in the new race record matches the rfid of a racer:
                 if(newRaceRecord.finalPositions[i] == newRaceRecord.racers[x].vehicleRFID)
                 {
+                    //loop through the lap records
                     for(let y = 0; y < newRaceRecord.lapRecords.length; y++)
                     {
+                        //if final positions matches the vehicle rfid in the current lapRecord
                         if(newRaceRecord.finalPositions[i] == newRaceRecord.lapRecords[y].vehicleRFID)
                         {
+                            //make the lap time the lap time of the current lapRecord
                             lapTime = newRaceRecord.lapRecords[y].lapTime;
                         }
                     }
 
+                    //add the data to poleTableBody
                     poleTableBody.innerHTML += "<tr><td>" + poleOrdinals[i+1] + "</td><td>" + newRaceRecord.racers[x].racerName + "</td><td>" + newRaceRecord.racers[x].vehicleNumber + "</td><td>" + lapTime + "</td></tr>";
                 }
             }

@@ -88,30 +88,37 @@
     </form>
 </div>
     <script>
+        //get the tagHex form field
         const tagHex = document.getElementById("tagHex");
 
+        //create a new websocket and connect it to the backend
         const ws = new WebSocket('ws:localhost:8888');
 
+        //on opening the websocket
         ws.onopen = () =>
         {
-            console.log("connected to server");
+            // console.log("connected to server");
         }
 
+        //on receiving a message
         ws.onmessage = (event) =>
         {
+            //parse the data
             let temp = event.data
             temp = temp.slice(0,-1);
-
             let dataArray = temp.split(",");
 
+            //if the first entry of the dataArray is "checkRFID", place the data into the tagHex form field
             if(dataArray[0] === "checkRFID")
             {
                 tagHex.value = dataArray[1];
             }
         }
 
+        //run the checkForRFID function iin 1/4th of a second
         setInterval(checkForRFID, 250);
 
+        //sends a message to the backend to check if an RFID tag has been scanned, then check again in 1/4th of a second
         function checkForRFID()
         {
             ws.send("findRFID,ping");

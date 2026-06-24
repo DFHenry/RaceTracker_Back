@@ -29,30 +29,37 @@
     </form>
 </div>    
     <script>
+        //get the form field for the RFID hex code to be enetered
         const tagHex = document.getElementById("tagHex");
 
+        //create a new websocket and connnect it to the backend
         const ws = new WebSocket('ws:localhost:8888');
 
+        //on the websocket opening
         ws.onopen = () =>
         {
-            console.log("connected to server");
+            // console.log("connected to server");
         }
 
+        //on receiving a new message
         ws.onmessage = (event) =>
         {
+            //parse the data
             let temp = event.data;
             temp = temp.slice(0,-1);
-
             let dataArray = temp.split(",");
 
+            //if the first entry in dataArray is "checkRFID", place the hex code into tagHex
             if(dataArray[0] === "checkRFID")
             {
                 tagHex.value = dataArray[1];
             }
         }
 
+        //check for an RFID every 1/4th of a second
         setInterval(checkForRFID, 250);
 
+        //send a message to app.js to find if an RFID tag has been scanned
         function checkForRFID()
         {
             ws.send("findRFID,ping");

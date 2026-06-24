@@ -15,7 +15,6 @@
     <!-- Race Information -->
     <div id="raceInfo">
         <p>Number of Laps: <%= race.noOfLaps %></p>
-        <!-- <p>Race is <%= race.raceState %></p> -->
         <p id="countdown">Countdown: 10</p>
         <p id="stopWatch">00:00:00</p>
     </div>
@@ -32,12 +31,6 @@
         </thead>
         <tbody id="raceLaps">
             <tr>
-                <!-- <td>Name</td>
-                <td>Vehicle Number</td>
-                <td>Time Index</td>
-                <td>Lap Time Index</td>
-                <td>Lap Number</td>
-                <td>Pole Position</td> -->
             </tr>
         </tbody>
 
@@ -96,6 +89,7 @@
         let count = 0;
         let timerOn = false;
 
+        //countdown integer
         let countDown = 10;
 
         //stopwatch display variables
@@ -140,8 +134,6 @@
 
         //  +++ RACE INITIALIZATION +++
 
-        console.log(raceData.racers);
-
         //place records into the lapCounter and curLap arrays for each racer
         for(let i = 0; i < raceData.racers.length; i++)
         {
@@ -157,27 +149,27 @@
         //event listeners
         ws.onopen = () =>
         {
-            console.log('connected to server: Race View');
+            // console.log('connected to server: Race View');
         }
 
+        //when receiving a message
         ws.onmessage = (event) =>
         {
+            //parse the data from the message
             let temp = event.data;
             temp = temp.slice(0, -1);
-
             let dataArray = temp.split(",");
 
             //if the first string in dataArray is "detectedRFID", being lap and pole position updates
             if(dataArray[0] == "detectedRFID")
             {
-                console.log(raceData.racers);
                 //lap information
                 for(let x = 0; x < raceData.racers.length; x++)
                 {
+                    //if the data from the dataArray is equal to the vehicle RFID of a racer AND the lap data is less than the number laps in the race
                     if(raceData.racers[x].vehicleRFID == dataArray[1] && lapCounter[x] < raceData.noOfLaps)
                     {
                         //update lap information
-                        console.log("Valid Tag Detected: " + dataArray[1]);
                         lapCounter[x] += 1;
                         lapRecord = lapCounter[x];
                         racerRecord = raceData.racers[x];
@@ -186,19 +178,22 @@
                     }
                     else
                     {
-                        console.log("Tag not valid for this race");
+                        // console.log("Tag not valid for this race");
                     }
                 }
             }
         }
 
+        //event listener for starting a race
         startBtn.onclick = startRace;
 
         //timer functions
         function startRace()
         {
+            //if the timer is not on
             if(timerOn === false)
             {
+                //if the countdown has not hit zero, change the data appropriately, send the message to app.js and update the DB
                 if(countDown > 1)
                 {
                     countDown -= 1;
@@ -206,25 +201,26 @@
                     ws.send("startCountdown,_");
                     setTimeout(startRace, 1000);
                 }
+                //if the countdown has hit zero, start the race proper and race timer
                 else
                 {
                     countDownDiv.innerHTML = "Countdown: GO!";
-                    console.log("timer is on");
                     startBtn.innerHTML = "Pause Race";
                     timerOn = true;
                     raceTimer();
                 }
 
             }
+            //if the timer is on - meant for pause button
             else
             {
-                console.log("timer is off");
                 startBtn.innerHTML = "Resume Race";
                 timerOn = false;
                 raceTimer();
             }
         }
 
+        //runs the minutes, seconds, and centiseconds (called count)
         function raceTimer()
         {
             //actual counter
@@ -237,6 +233,7 @@
                 }
             }
 
+            //add a second if count hits 100, then reset count
             if(count == 100)
             {
                 seconds += 1;
@@ -247,6 +244,8 @@
                     curLapCount[i] = 0;
                 }
             }
+
+            //add one minute of seconds hits 60, then reset seconds
             if(seconds == 60)
             {
                 minutes += 1;
@@ -259,6 +258,7 @@
             }
 
             //counter display
+            //if count is less than 10, change the display to add a 0 to the front of the display string, otherwise just use the count to display
             if(count < 10)
             {
                 dSecDisp = "0" + count.toString();
@@ -267,7 +267,7 @@
             {
                 dSecDisp = count.toString();
             }
-
+            //if seconds is less than 10, change the display to add a 0 to the front of the display string, otherwise just use the seconds to display
             if(seconds < 10)
             {
                 secDisp = "0" + seconds.toString();
@@ -276,6 +276,7 @@
             {
                 secDisp = seconds.toString();
             }
+            //if count is less than 10, change the display to add a 0 to the front of the display string, otherwise just use the minutes to display
 
             if(minutes < 10)
             {
@@ -286,33 +287,43 @@
                 minDisp = minutes.toString();
             }
 
+            //display the timecode on the screen using the stopWatch element
             stopWatch.innerHTML = minDisp + ":" + secDisp + ":" + dSecDisp;
 
+            //send a message to app.js to check if an RFID code has been placed into the rfid string
             if(timerOn == true)
             {
                 ws.send("checkRFID" + "," + minDisp + "," + secDisp + "," + dSecDisp);
             }
 
+            //repeat in 10 milliseconds (or one centisecond)
             setTimeout(raceTimer, 10);
         }
 
+        //adds a new lap to the datta array
         function addNewLap(dataArray)
         {
             //update pole position information
+
+            //if there are no laps currently recorded, add the new lap to the array
             if(polePositions.length == 0)
             {
                 polePositions.push(dataArray[1]);
 
                 poleRecord += 1;
             }
+            //if pole positions has at least one entry in it
             else if(polePositions.length > 0)
             {
                 let onPolePosition = false;
 
+                //loop though the pole positions
                 for(let y = 0; y < polePositions.length; y++)
                 {
+                    //if the pole position matches the rfid data, we know a racer has made an additional lap
                     if(polePositions[y] == dataArray[1])
                     {
+
                         onPolePosition = true;
                         break;
                     }
@@ -322,12 +333,14 @@
                     }
                 }
 
+                //if a racer has made a new lap after the first, clear the array and add the data back into the array
                 if(onPolePosition == true)
                 {
                     polePositions.length = 0;
                     polePositions.push(dataArray[1]);
                     poleRecord = 1;
                 }
+                //otherwise, push the lap data onto the array
                 else
                 {
                     polePositions.push(dataArray[1]);
@@ -335,27 +348,29 @@
                 }
             }
 
+            //create a new lap object and get the current date
             var newLap = Object.create(lap);
             var newDate = new Date();
             
+            //fill in the newLap object with te appropriate data from the dataArray
             newLap.racerName = racerRecord.racerName;
             newLap.raceVehicle = racerRecord.vehicleNumber;
             newLap.vehicleRFID = dataArray[1];
             newLap.lapTime = dataArray[2] + ":" + dataArray[3] + ":" + dataArray[4];
             newLap.dateMade = newDate.getFullYear().toString() + "-" + newDate.getMonth().toString() + "-" + newDate.getDate().toString();
             
+            //loop though the racers
             for(let i = 0; i < raceData.racers.length; i++)
             {
+                //if the rfid matches one of the racers
                 if(raceData.racers[i].vehicleNumber == racerRecord.vehicleNumber)
                 {
+                    //define variables for count, seconds and minutes to display
                     let tempLapCount = "";
                     let tempLapSec = "";
                     let tempLapMin = "";
 
-                    console.log(curLapMin[i]);
-                    console.log(curLapSec[i]);
-                    console.log(curLapCount[i]);
-
+                    //define the count into an appropriate string
                     if(curLapCount[i] < 10)
                     {
                         tempLapCount = "0" + curLapCount[i].toString();
@@ -365,6 +380,7 @@
                         tempLapCount = curLapCount[i].toString()
                     }
 
+                    //define the seconds into an appropriate string
                     if(curLapSec[i] < 10)
                     {
                         tempLapSec = "0" + curLapSec[i].toString();
@@ -374,6 +390,7 @@
                         tempLapSec = curLapSec[i].toString();
                     }
 
+                    //define the minutes into an appropriate string
                     if(curLapMin[i] < 10)
                     {
                         tempLapMin = "0" + curLapMin[i].toString();
@@ -383,50 +400,57 @@
                         tempLapMin = curLapMin[i].toString();
                     }
 
-                    console.log("newest lap minutes: " + tempLapMin);
-                    console.log("newest lap seconds: " + tempLapSec);
-                    console.log("newest lap count: " + tempLapCount);
-
+                    //define a string for the current race timestamp for display
                     newLap.singleLapTime = tempLapMin + ":" + tempLapSec + ":" + tempLapCount;
 
+                    //reset the timestamp data
                     curLapCount[i] = 0;
                     curLapSec[i] = 0;
                     curLapMin[i] = 0;
                 }
             }
 
+            //define the lap numbers and pole positions
             newLap.lapNumber = lapRecord;
             newLap.polePosition = poleOrdinals[poleRecord];
 
+            //push the lap into the lapInfo array
             lapInfo.push(newLap);
 
+            //add the lap into the raceLaps table
             raceLaps.innerHTML += "<tr><td>" + racerRecord.racerName + "</td><td>" + racerRecord.vehicleNumber + "</td><td>" + dataArray[2] + ":" + dataArray[3] + ":" + dataArray[4] + "</td><td>" + newLap.singleLapTime + "</td><td>Lap " + lapRecord + "/" + raceData.noOfLaps + "</td><td>" + poleOrdinals[poleRecord] + "</td></tr>";
 
+            //send message to app.js to add data to the DB
             ws.send("addNewLap" + "," + newLap.lapTime + "," + newLap.racerName + "," + newLap.lapNumber + "," + newLap.polePosition);
 
+            //check if all racers have made all laps
             checkEnd();
         }
 
+        //function to check if the race has ended
         async function checkEnd()
         {
-            console.log("Checking if all racers have finished their laps");
-
+            //define variables for the function 
             let endCondition = raceData.racers.length;
             let endCounter = 0;
 
+            //loop though the lengtho of the lap counter
             for(let i = 0; i < lapCounter.length; i++)
             {
+                //if the a racer has completed a number of laps equal to the number of laps in the race, add 1 to the endCounter
                 if(lapCounter[i] == raceData.noOfLaps)
                 {
                     endCounter += 1;
                 }
             }
 
+            //if the end counter is equal to the number of racers in the race, the race is over
             if(endCondition == endCounter)
             {
-                console.log("Race Has Concluded");
+                //turn off the timer
                 timerOn = false;
 
+                //create a new record for the race
                 var newRaceRecord = 
                 {
                     raceDateTime: Date.now(),
@@ -436,18 +460,20 @@
                     finalPositions: polePositions
                 };
 
-                console.log(newRaceRecord);
-
+                //turn the data into a string to parse by app.js
                 var raceRecordData = await JSON.stringify(newRaceRecord);
+
+                //place the data into 
                 finishValue.value = raceRecordData;
 
+                //hide all other buttons, display the finish button
                 startBtn.style.display = "none";
                 stopBtn.style.display = "none";
                 finishBtn.style.display = "block";
             }
             else
             {
-                console.log("Race Has Not Concluded");
+                // console.log("Race Has Not Concluded");
             }
         }
     </script>

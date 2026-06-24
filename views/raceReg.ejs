@@ -50,47 +50,58 @@
     </form>
 
     <script>
+        //get the testDiv element
         const tableBody = document.getElementById("testDiv");
 
+        //get relevant elements for racer entries
         const entries = document.getElementById('entries');
         const racerName = document.getElementById('racerName');
         const racerEmail = document.getElementById('email');
 
+        //get the racers table element
         const racers = document.getElementById('racers');
 
+        //define a racerArray
         let racerArray = [];
 
+        //object for registering a racer for a race
         const racer = 
         {
             rName: String,
             rEmail: String
         }
 
+        //define a websocket and define the address to listen to
         const ws = new WebSocket('ws:localhost:8888');
 
+        //on open (for testing)
         ws.onopen = () =>
         {
-            console.log('connected to server');
         }
 
+        //when it gets a relevant racer, the data is added to the entries table
         ws.onmessage = (event) =>
         {
-            //console.log(event.data);
             entries.innerHTML += event.data;
         }
 
+        //adds a racer when the form is completed
         function addRacer()
         {
+            //variables for the add racer form
             const newName = racerName.value.trim();
             const newEmail = racerEmail.value.trim();
             const messageType = "registration";
 
+            //create a new racer object
             const newRacer = Object.create(racer);
 
+            //if either of the form fields are empty, return a console log stating that the data is missing
             if(!newName || !newEmail)
             {
                 console.log("Missing Data");
             }
+            //otherwise, send a message to app.js
             else
             {
                 ws.send(messageType + "," + newName + "," + newEmail);
@@ -98,6 +109,8 @@
                 racerName.value = '';
                 racerEmail.value = '';
             }
+
+            //bring the cursor back to the racerName portion of the add racer form
             racerName.focus();
         }
     </script>

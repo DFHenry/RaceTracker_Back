@@ -10,7 +10,6 @@ import http from "http";
 import { createServer } from "http";
 import { WebSocketServer } from "ws";
 import cors from "cors";
-// import { setTimeout } from "node:timers/promises";
 
 //RFID Reader !!! Change the RFIDPORT variable in the .env to the name of whichever port your Arduino board is plugged into
 var rfid1 = new SerialPort(
@@ -61,16 +60,12 @@ const wss = new WebSocketServer({server});
 //websocket connection and methods
 wss.on("connection", (ws, req) =>
 {
-    console.log("client connected"); 
-
     //server receives message from a page
     ws.on("message", (data) =>
     {
         //parse data into an array of strings
         let temp = `${data}`;
         let dataArray = temp.split(",");
-
-        //  based on dataArray[0], perform an async function
 
         //call addRacer function if the dataArray[0] string is "registration"
         if(dataArray[0] == "registration")
@@ -79,30 +74,31 @@ wss.on("connection", (ws, req) =>
             addRacer(dataArray);
         }
 
+        //call runTheRace function if dataArray[0] string is "startCountdown"
         else if(dataArray[0] == "startCountdown")
         {
             runTheRace();
         }
 
+        //call runTheRace function if dataArray[0] string is "findRFID"
         else if(dataArray[0] == "findRFID")
         {
             sendRFID(dataArray);
         }
 
+        //call runTheRace function if dataArray[0] string is "startCountdown"
         else if(dataArray[0] == "checkRFID")
         {
             checkRFID(dataArray);
         }
 
+        //call runTheRace function if dataArray[0] string is "startCountdown"
         else if(dataArray[0] == "addNewLap")
         {
             addNewLap(dataArray);
         }
-        // else if(dataArray[0] == "finishRace")
-        // {
-        //     finishRace(dataArray);
-        // }
 
+        //sends the appropriate data though the websocket for the raceView page to process
         async function sendRFID(data)
         {
             let sendRFID = "checkRFID," + newRFID + ",";
@@ -113,27 +109,29 @@ wss.on("connection", (ws, req) =>
         //add a racer to the race information on the db and send it back to the page via websocket message
         async function addRacer(newRacer)
         {
+            //define variables for the vehicle number being assigned to a racer and its RFID Hex Code
             let assignedVehicle = 0;
             let assignedRFID = "";
 
+            //get the vehicles from the array
             let vehicles = await vehicleDb.getAllVehicles();
 
+            //get the current race data
             let newRace = await raceDb.getRaceData();
-
-            console.log("newRace is: " + newRace);
 
             //loop through all vehicles
             for(let i = 0; 0 < vehicles.length; i++)
             {
+                //if a vehicle is idle, assign its number and hex code then break the loop
                 if(vehicles[i].status == 'idle')
                 {
                     assignedVehicle = vehicles[i].vehicleNumber;
                     assignedRFID = vehicles[i].tagHex;
-                    //console.log("Assigned Vehicle Hex: " + assignedRFID);
                     break;
                 }
             }
 
+            //create a new racer object to add do the race
             let racerToAdd = Object.create(Racer);
 
             racerToAdd.rName = newRacer[1];
@@ -141,46 +139,61 @@ wss.on("connection", (ws, req) =>
             racerToAdd.rVehicle = assignedVehicle;
             racerToAdd.vehicleRFID = assignedRFID;
 
+            //add the racer to the newRace array
             newRace.racers.push({racerName: racerToAdd.rName, racerEmail: racerToAdd.rEmail, vehicleNumber: racerToAdd.rVehicle, vehicleRFID: racerToAdd.vehicleRFID});
 
+            //get the id for the race
             let idFilter = {_id: new ObjectId(String(newRace._id)) };
 
+            //add the racer to the current race and update the DB
             await raceDb.addRacer(idFilter, newRace);
 
+            //send a message to the raceReg page with data to add to the registered racers
             ws.send("<td>" + racerToAdd.rName + "</td><td>" + racerToAdd.rEmail + "</td><td>" + racerToAdd.rVehicle + "</td><td>" + racerToAdd.vehicleRFID + "</td>");
+
+            //clear the data array
             dataArray.length = 0;
         }
 
+        //check if newRFID has a hex code in it
         async function checkRFID(checkData)
         {
+            //do nothing if newRFID is an empty string
             if(newRFID == "")
             {
                 // console.log("no tag detected");
             }
+            //otherwise, being checking the RFID
             else
             {
-                console.log("tag detected: " + newRFID);
-
+                //define arrays for minutes, seconds and count send by the viewRace page
                 let minutesLog = checkData[1];
                 let secondsLog = checkData[2];
                 let dSecondsLog = checkData[3];
 
+                //get the current race data
                 let currentRace = await raceDb.getRaceData();
 
+                //send the data back to the viewRace page with the appropriate data for adding a new lap
                 await ws.send("detectedRFID," + newRFID + "," + minutesLog + "," + secondsLog + "," + dSecondsLog + ",");
 
+                //clear the rfid and dataArray
                 newRFID = "";
                 dataArray.length = 0;
             }
         }
 
+        //add a new lap to the database
         async function addNewLap(dataArray)
         {
+            //get the current race data from the db
             let raceData = await raceDb.getRaceData();
 
+            //get the id of the race data and the lap number
             let filterId = {_id: new ObjectId(String(raceData._id))}
             let lapNo = parseInt(dataArray[3]);
 
+            //create a new lap object
             let newLap = 
             {
                 lapTime: dataArray[1],
@@ -189,17 +202,23 @@ wss.on("connection", (ws, req) =>
                 polePosition: dataArray[4]
             };
 
+            //send and update the db with the new lap data
             await raceDb.updateRaceData(filterId, newLap);
         }
 
+        //start the race
         async function runTheRace() 
         {
+            //if the race is running, tell the db that a race is runing
             if(raceIsRunning == false)
             {
+                //get the current race data
                 let curRace = await raceDb.getRaceData();
 
+                //get the id of the current race data
                 let filterId = {_id: new ObjectId(String(curRace._id)) };
 
+                //create a raceUpdate with updated data
                 let raceUpdate = 
                 {
                     raceState: "running",
@@ -208,7 +227,9 @@ wss.on("connection", (ws, req) =>
                     laps: curRace.laps
                 };
 
+                //update the race data with the new data
                 await raceDb.runRace(filterId, raceUpdate);
+
                 runTheRace = true;
             }
         }
@@ -652,6 +673,7 @@ app.post("/raceRegistration/startRace/submit", async (req, res) =>
     }
 });
 
+//return to the dashboard from 
 app.post("/raceRegistration/dashboard/submit", async (req, res) => 
 {
     //reset current race data
@@ -685,6 +707,7 @@ app.post("/raceRegistration/dashboard/submit", async (req, res) =>
     res.redirect("/dashboard"); 
 });
 
+//stop a race while it's running
 app.post("/stopRace/submit", async (req, res) => 
 {
     //reset current race data
@@ -719,6 +742,7 @@ app.post("/stopRace/submit", async (req, res) =>
     res.redirect("/dashboard"); 
 });
 
+//finish a race currently being run
 app.post("/finishRace/submit", async (req, res) =>
 {
     if(req.session.loggedIn)
@@ -949,6 +973,7 @@ app.post("/finishRace/submit", async (req, res) =>
     }
 });
 
+//delet a lap from the lap history
 app.post("/lapHistory/deleteLap/submit", async (req, res) =>
 {
     let recordNumber = req.body.recordNumber;
@@ -960,6 +985,7 @@ app.post("/lapHistory/deleteLap/submit", async (req, res) =>
     res.redirect("/dashboard");
 });
 
+//start a new race after one has just finished
 app.post("/finishRace/newRace/submit", async (req, res) =>
 {
     //reset race data
@@ -994,6 +1020,7 @@ app.post("/finishRace/newRace/submit", async (req, res) =>
 
 });
 
+//return to the dashboard after a race has finished
 app.post("/finishRace/dashboard/submit", async (req, res) =>
 {
     //reset race data
@@ -1031,11 +1058,13 @@ app.post("/finishRace/dashboard/submit", async (req, res) =>
     res.redirect("/dashboard");
 });
 
+//redirrect to the dashboard from the lapHistory page
 app.post("/lapHistory/dashboard/submit", async (req, res) =>
 {
     res.redirect("/dashboard");
 });
 
+//delay function
 function delay(milliseconds)
 {
     return new Promise(resolve =>
@@ -1044,6 +1073,7 @@ function delay(milliseconds)
     });
 }
 
+//listen to the port the DB is running on
 server.listen(port, () =>
 {
     console.log("port is listening on: " + port);

@@ -34,15 +34,17 @@
     </div>
 
     <script>
+        //get the lap history json data into a variable
         const lapHistory = <%- JSON.stringify(history) %>;
-        
-        console.log(lapHistory);
 
+        //get the tableBody element and define recordNumber as 1
         let tableBody = document.getElementById("tableBody");
         let recordNumber = 1;
 
+        //loop though each record in the current lapHistory
         for(let i = 0; i < lapHistory.recordArray.length; i++)
         {
+            //if the array isn't null, add relevant data to the tableBody
             if(lapHistory.recordArray[i] != null)
             {
                 tableBody.innerHTML += "<tr><th>" + recordNumber.toString() + 

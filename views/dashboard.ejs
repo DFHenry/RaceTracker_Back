@@ -65,17 +65,20 @@
     </form>
 </div>
 <script>
+    //place json data into a variable
     let curLapHistory = <%- JSON.stringify(lapHistory) %>;
 
-    console.log(curLapHistory.length);
-
+    //get the "lapHistoryTable" element
     let lapHistoryTable = document.getElementById("lapHistoryTable");
 
+    //loop through the current lap histories
     for(let i = 0; i < curLapHistory.length; i++)
     {
+        //define variables for a lap record and the date it was made
         var tempLapRecord;
         var tempDateMade;
 
+        //check if the record array is empty. if it isn't, define tempLapRecord and tempDate Made with the current lap data
         if(curLapHistory[i].recordArray == 0)
         {
             tempLapRecord = "No Records Exist";
@@ -87,12 +90,9 @@
             tempDateMade = curLapHistory[i].recordArray[0].dateMade;
         }
 
-        //console.log(i);
-
+        //add data to the lap history table
         lapHistoryTable.innerHTML += "<tr><th>" + curLapHistory[i].periodString + "</th><td>" + tempLapRecord + "</td><td>" + tempDateMade + "</td><td><form action=\"/viewHistory/submit\" method=\"post\"><input type=\"hidden\" name=\"historyType\" value=\"" + curLapHistory[i].periodString + "\"><button class=\"btn btn-success\">View Previous records</button></form></td></tr>";
     }
-
-    //console.log(curLapHistory);
 </script>
 </body>
 </html>
