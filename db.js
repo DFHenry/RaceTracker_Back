@@ -212,6 +212,7 @@ async function editVehicle(filter, vehicleDoc)
     // return result;
 }
 
+//delete a vehicle from the db
 async function deleteVehicle(id)
 {
     let vehicleToRemove = {_id: new ObjectId(String(id)) };
@@ -251,6 +252,7 @@ async function addMaintenanceLog(newLog)
     let result = await MaintenanceLog.insertOne(logToAdd);
 }
 
+//delete a maintenance log from a vehicle
 async function deleteLogs(vehicleNo) 
 {
     let logs = await MaintenanceLog.find({});
@@ -354,6 +356,7 @@ async function startRace(filter, data)
     await Race.updateOne(filter, finalRace);
 }
 
+//run a race
 async function runRace(filter, data)
 {
     let updatedRace = 
@@ -370,6 +373,7 @@ async function runRace(filter, data)
     await Race.updateOne(filter, updatedRace);
 }
 
+//update race data
 async function updateRaceData(filter, data)
 {
     var raceData = await Race.findOne({});
@@ -390,6 +394,7 @@ async function updateRaceData(filter, data)
     await Race.updateOne(filter, updatedRace);
 }
 
+//add race data once a race has been completed
 async function addFinalizedRaceData(newRaceRecord)
 {
     let raceRecordToAdd = 
@@ -404,6 +409,7 @@ async function addFinalizedRaceData(newRaceRecord)
     await RaceRecord.insertOne(newRaceRecord);
 }
 
+//finish the race
 async function finishRace(filter, data)
 {
     var raceData = await Race.findOne({});
@@ -424,13 +430,13 @@ async function finishRace(filter, data)
 
 //  +++ LAP HISTORY METHODS +++
 
-//get Lap History
-
+//get a single Lap History
 async function getLapHistory() 
 {
     return await lapHistory.find({});
 }
 
+//get a lap history based on it's period string (monthly, daily, etc.)
 async function getOneLapHistory(data)
 {
     return await lapHistory.findOne(
@@ -439,6 +445,7 @@ async function getOneLapHistory(data)
     });
 }
 
+//get a lap history for each category, and if a new day, month, or year has come, clean records for that category
 async function initializeLapHistory()
 {
     let initDate = new Date();
@@ -490,6 +497,7 @@ async function initializeLapHistory()
     await lapHistory.insertOne(initDailyHistory);
 }
 
+//alter a lap history category with a new record
 async function alterLapHistory(filter, data)
 {
     let lapToUpdate =
@@ -506,6 +514,7 @@ async function alterLapHistory(filter, data)
     await lapHistory.updateOne(filter, lapToUpdate);
 }
 
+//update the lap history
 async function updateLapHistory(filter, data)
 {
     let newLapHistory =

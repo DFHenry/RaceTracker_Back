@@ -270,7 +270,6 @@ rfid1.on("data", async function(data)
         if(sendMessage != "")
         {
             newRFID = sendMessage;
-            console.log(sendMessage);
             fullMessage = "";
             sendMessage = "";
         }
@@ -314,7 +313,6 @@ app.use(
 //index page, also the login page
 app.get("/", (req, res) =>
 {
-    //console.log(req.session);
     res.render("index");
 });
 
@@ -324,14 +322,12 @@ app.post("/login/submit", async (req, res) =>
     let auth = await userDb.authenticateUser(req.body.username, req.body.password);
     if(auth)
     {
-        console.log("Ping");
         req.session.loggedIn = true;
         req.session.user = req.body.username;
         res.redirect("/dashboard");
     }
     else
     {
-        console.log("Nope");
         res.render("index");
     }
 });
@@ -396,8 +392,6 @@ app.get("/dashboard", async (req, res) =>
                 //alter daily lap history for todays date
                 if(lapHistory[i].periodDate != curDate.getDate())
                 {
-                    console.log("Updating daily log for today");
-
                     let idFilter = {_id: new ObjectId(String(lapHistory[i]._id)) };
 
                     let newDailyLog =
@@ -413,7 +407,7 @@ app.get("/dashboard", async (req, res) =>
                 }
                 else
                 {
-                    console.log("Daily Log is current.")
+                    // console.log("Daily Log is current.")
                 }
             }
 
@@ -425,8 +419,6 @@ app.get("/dashboard", async (req, res) =>
                 //alter daily lap history for todays date
                 if(lapHistory[i].periodDate != month[curDate.getMonth()])
                 {
-                    console.log("Updating monthly log for current month");
-
                     let idFilter = {_id: new ObjectId(String(lapHistory[i]._id)) };
 
                     let newMonthlyLog =
@@ -442,7 +434,7 @@ app.get("/dashboard", async (req, res) =>
                 }
                 else
                 {
-                    console.log("Monthly Log is current.")
+                    // console.log("Monthly Log is current.")
                 }
             }
             
@@ -453,8 +445,6 @@ app.get("/dashboard", async (req, res) =>
                 //alter daily lap history for todays date
                 if(lapHistory[i].periodDate != curDate.getFullYear())
                 {
-                    console.log("Updating annual log for current year");
-
                     let idFilter = {_id: new ObjectId(String(lapHistory[i]._id)) };
 
                     let newAnnualLog =
@@ -470,7 +460,7 @@ app.get("/dashboard", async (req, res) =>
                 }
                 else
                 {
-                    console.log("Annual Log is current.");
+                    // console.log("Annual Log is current.");
                 }
             }
 
@@ -479,8 +469,6 @@ app.get("/dashboard", async (req, res) =>
                 lapHistory = await lapHistoryDb.getLapHistory();
             }
         }
-
-        console.log(req.session);
 
         res.render("dashboard", 
         {
@@ -502,8 +490,6 @@ app.get("/raceRegistration", async (req, res) =>
         var curRace = await raceDb.getRaceData();
 
         curRace.raceState = "registration";
-
-        console.log(curRace.raceState);
 
         let idFilter = {_id: new ObjectId(String(curRace._id)) };
 
@@ -654,13 +640,9 @@ app.post("/raceRegistration/startRace/submit", async (req, res) =>
             noOfLaps: parseInt(req.body.noOfLaps)
         };
 
-        //console.log("new race: " + newRace);
-
         await raceDb.startRace(idFilter, newRace);
 
         const finalRace = await raceDb.getRaceData();
-
-        //console.log("final race: " + finalRace);
 
         res.render("raceView", 
         {
@@ -815,9 +797,7 @@ app.post("/finishRace/submit", async (req, res) =>
                     lapArray.sort();
 
                     //shorten the array to 5 entries
-                    lapArray.length = 5;
-
-                    //console.log("Sorted Lap Count: " + lapArray.length);            
+                    lapArray.length = 5;          
                     
                     let newHistory =
                     {
@@ -1031,8 +1011,6 @@ app.post("/finishRace/dashboard/submit", async (req, res) =>
     curRace.noOfLaps = 1;
     curRace.laps.length = 0;
 
-    console.log(curRace.raceState);
-
     let idFilter = {_id: new ObjectId(String(curRace._id)) };
 
     await db.startRace(idFilter, curRace);
@@ -1044,7 +1022,6 @@ app.post("/finishRace/dashboard/submit", async (req, res) =>
     {
         if(vehicles[i].status == "active")
         {
-            console.log("changing vehicle " + vehicles[i]._id);
             let vehicleId = {_id: new ObjectId(String(vehicles[i]._id)) };
 
             let vehicle = vehicles[i];
@@ -1076,5 +1053,5 @@ function delay(milliseconds)
 //listen to the port the DB is running on
 server.listen(port, () =>
 {
-    console.log("port is listening on: " + port);
+    //console.log("port is listening on: " + port);
 });
